@@ -124,7 +124,7 @@ a {
 	text-decoration: underline;
 }
 
-footer {
+footer.bottom {
 	color: #000000;
 	padding-top: 5px;
 	padding-bottom: 7px;
@@ -165,7 +165,7 @@ img.logo {
 .constructionText {
 	position: relative;
 	bottom: 75px;
-	left: calc(50% - 267px);
+	left: calc(50% - 285px);
 }
 
 canvas.construction {
@@ -184,4 +184,36 @@ canvas.conwaynav-incognito {
   text-align: center;
   width: 100%;
   height: 100px;
+}
+
+
+
+@media only screen and (max-width: 1000px) {
+	div.main_layer {
+		display: block;
+	}
+	div.nav {
+		width: 100%;
+	}
+	object {
+		width: 100%;
+	}
+	table {
+		width: 100%
+	}
+	div.page_dis {
+		width: calc(100% - 30px);
+	}
+}
+
+@media only screen and (max-width: 906px) {
+	footer.bottom {
+		background-image: url("greengradientL.png");
+	}
+}
+
+@media only screen and (max-width: 467px) {
+	footer.bottom {
+		background-image: url("greengradientXL.png");
+	}
 }
