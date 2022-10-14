@@ -2,7 +2,6 @@
 
 <!DOCTYPE html>
 
-<link href="src/styles.css" rel="styles" />
 <link rel="stylesheet" href="../style.css">
 
 <html>
@@ -954,7 +953,7 @@ function encode(param) {
         return Math.round(Math.cos(param) * 10000);
       }
 
-function generateKey() {
+      function generateKey() {
         // This is really easy to just "hack" but eh.
         var generatedKey = encode(
           encode(hotdogs) +
@@ -967,7 +966,46 @@ function generateKey() {
             encode(plant) +
             encode(portal) + 
             encode(condenser) +
-            encode(vendorUpgrades)
+            encode(god) +
+            encode(country) +
+            encode(vendorUpgrades) +
+            encode(storeUpgrades) +
+            encode(factoryUpgrades) +
+            encode(carnivalUpgrades) +
+            encode(plantUpgrades) +
+            encode(portalUpgrades) +
+            encode(condenserUpgrades) +
+            encode(godUpgrades) +
+            encode(countryUpgrades) +
+            encode(vendorHPS) +
+            encode(hotdogStoreHPS) +
+            encode(factoryHPS) +
+            encode(carnivalHPS) +
+            encode(plantHPS) +
+            encode(portalHPS) +
+            encode(condenserHPS) +
+            encode(godHPS) +
+            encode(countryHPS) +
+            encode(vendorUpgradeCost) +
+            encode(storeUpgradeCost) +
+            encode(factoryUpgradeCost) +
+            encode(carnivalUpgradeCost) +
+            encode(plantUpgradeCost) +
+            encode(portalUpgradeCost) +
+            encode(condenserUpgradeCost) +
+            encode(godUpgradeCost) +
+            encode(countryUpgradeCost) +
+            encode(vendorUpgradeCost) +
+            encode(storeUpgradeCost) +
+            encode(factoryUpgradeCost) +
+            encode(carnivalUpgradeCost) +
+            encode(plantUpgradeCost) +
+            encode(portalUpgradeCost) +
+            encode(condenserUpgradeCost) +
+            encode(godUpgradeCost) +
+            encode(countryUpgradeCost) +
+            encode(ascensionPoints, ascensions, ascensionBoost, ascensionIncrease, ascendHotdogsNeeded) +
+            encode(overallAscenionPoints, overallAscenionPoints1, hotdogsEverMade)
         );
         return generatedKey;
       }
@@ -1005,7 +1043,43 @@ function generateKey() {
         saveFile += '"plant": ' + plant + ",\n";
         saveFile += '"portal": ' + portal + ",\n";
         saveFile += '"condenser": ' + condenser + ",\n";
-        saveFile += '"vendorUpgrades": ' + vendorUpgrades + "\n"
+        saveFile += '"god": ' + god + ",\n";
+        saveFile += '"country": ' + god + ",\n";
+        saveFile += '"vendorUpgrades": ' + vendorUpgrades + ",\n";
+        saveFile += '"storeUpgrades": ' + storeUpgrades + ",\n";
+        saveFile += '"factoryUpgrades": ' + factoryUpgrades + ",\n";
+        saveFile += '"carnivalUpgrades": ' + carnivalUpgrades + ",\n";
+        saveFile += '"plantUpgrades": ' + plantUpgrades + ",\n";
+        saveFile += '"portalUpgrades": ' + portalUpgrades + ",\n";
+        saveFile += '"condenserUpgrades": ' + condenserUpgrades + ",\n";
+        saveFile += '"godUpgrades": ' + godUpgrades + ",\n";
+        saveFile += '"countryUpgrades": ' + countryUpgrades + ",\n";
+        saveFile += '"vendorHPS": ' + vendorHPS + ",\n";
+        saveFile += '"hotdogStoreHPS": ' + hotdogStoreHPS + ",\n";
+        saveFile += '"factoryHPS": ' + factoryHPS + ",\n";
+        saveFile += '"carnivalHPS": ' + carnivalHPS + ",\n";
+        saveFile += '"plantHPS": ' + plantHPS + ",\n";
+        saveFile += '"portalHPS": ' + portalHPS + ",\n";
+        saveFile += '"condenserHPS": ' + condenserHPS + ",\n";
+        saveFile += '"godHPS": ' + godHPS + ",\n";
+        saveFile += '"countryHPS": ' + countryHPS + ",\n";
+        saveFile += '"vendorUpgradeCost": ' + vendorUpgradeCost + ",\n";
+        saveFile += '"storeUpgradeCost": ' + storeUpgradeCost + ",\n";
+        saveFile += '"factoryUpgradeCost": ' + factoryUpgradeCost + ",\n";
+        saveFile += '"carnivalUpgradeCost": ' + carnivalUpgradeCost + ",\n";
+        saveFile += '"plantUpgradeCost": ' + plantUpgradeCost + ",\n";
+        saveFile += '"portalUpgradeCost": ' + portalUpgradeCost + ",\n";
+        saveFile += '"condenserUpgradeCost": ' + condenserUpgradeCost + ",\n";
+        saveFile += '"godUpgradeCost": ' + godUpgradeCost + ",\n";
+        saveFile += '"countryUpgradeCost": ' + countryUpgradeCost + ",\n";
+        saveFile += '"ascensionPoints": ' + ascensionPoints + ",\n";
+        saveFile += '"ascensions": ' + ascensions + ",\n";
+        saveFile += '"ascensionBoost": ' + ascensionBoost + ",\n";
+        saveFile += '"ascensionIncrease": ' + ascensionIncrease + ",\n";
+        saveFile += '"ascendHotdogsNeeded": ' + ascendHotdogsNeeded + ",\n";
+        saveFile += '"overallAscensionPoints": ' + overallAscenionPoints + ",\n";
+        saveFile += '"overallAscensionPoints1": ' + overallAscenionPoints1 + ",\n";
+        saveFile += '"hotdogsEverMade": ' + hotdogsEverMade + "\n";
         saveFile += "}";
 
         // Even though the file format pretty much follows the same conventions as a json file, the extenstion hotdog is too funny
@@ -1035,7 +1109,43 @@ function generateKey() {
             plant = jsonHotdog.plant;
             portal = jsonHotdog.portal;
             condenser = jsonHotdog.condenser;
+            god = jsonHotdog.god;
+            country = jsonHotdog.country;
             vendorUpgrades = jsonHotdog.vendorUpgrades;
+            storeUpgrades = jsonHotdog.storeUpgrades;
+            factoryUpgrades = jsonHotdog.factoryUpgrades;
+            carnivalUpgrades = jsonHotdog.carnivalUpgrades;
+            plantUpgrades = jsonHotdog.plantUpgrades;
+            portalUpgrades = jsonHotdog.portalUpgrades;
+            condenserUpgrades = jsonHotdog.condenserUpgrades;
+            godUpgrades = jsonHotdog.godUpgrades;
+            countryUpgrades = jsonHotdog.countryUpgrades;
+            vendorHPS = jsonHotdog.vendorHPS;
+            hotdogStoreHPS = jsonHotdog.hotdogStoreHPS;
+            factoryHPS = jsonHotdog.factoryHPS;
+            carnivalHPS = jsonHotdog.carnivalHPS;
+            plantHPS = jsonHotdog.plantHPS;
+            portalHPS = jsonHotdog.portalHPS;
+            condenserHPS = jsonHotdog.condenserHPS;
+            godHPS = jsonHotdog.godHPS;
+            countryHPS = jsonHotdog.countryHPS;
+            vendorUpgradeCost = jsonHotdog.vendorUpgradeCost;
+            storeUpgradeCost = jsonHotdog.storeUpgradeCost;
+            factoryUpgradeCost = jsonHotdog.factoryUpgradeCost;
+            carnivalUpgradeCost = jsonHotdog.carnivalUpgradeCost;
+            plantUpgradeCost = jsonHotdog.plantUpgradeCost;
+            portalUpgradeCost = jsonHotdog.portalUpgradeCost;
+            condenserUpgradeCost = jsonHotdog.condenserUpgradeCost;
+            godUpgradeCost = jsonHotdog.godUpgradeCost;
+            countryUpgradeCost = jsonHotdog.countryUpgradeCost;
+            ascensionPoints = jsonHotdog.ascensionPoints;
+            ascensions = jsonHotdog.ascensions;
+            ascensionBoost = jsonHotdog.ascensionBoost;
+            ascensionIncrease = jsonHotdog.ascensionIncrease;
+            ascendHotdogsNeeded = jsonHotdog.ascendHotdogsNeeded;
+            overallAscenionPoints = jsonHotdog.overallAscenionPoints;
+            overallAscenionPoints1 = jsonHotdog.overallAscenionPoints1;
+            hotdogsEverMade = jsonHotdog.hotdogsEverMade;
 
             // Validate if the save file is legit
             
@@ -1054,8 +1164,11 @@ function generateKey() {
 
     <h1><font color = "red"> Hotdog Making Stuff </h1></font>
 
-
-    <!--vendor-->
+	<table style="width: 100%">
+    <tr>
+	<td>
+	<!--vendor-->
+	
     <h3 id="vendorBuy"> Buy One Hotdog Street Vendor</h3>
     <button id="vendorButton"><a onClick="buyVendor()">
     <img src = "https://thumbs.dreamstime.com/b/new-york-street-vendor-hot-dog-vendors-streets-city-55794767.jpg"
@@ -1064,7 +1177,9 @@ function generateKey() {
     <p id="costVendor"> Hotdogs</p></a>
     <p id="amountVendor">You own 0 vendors.</p>
    
+    </td>
 
+	<td>
     <!--store-->
     <h3 id="storeBuy"> Buy One Hotdog Store </h3>
     <button id="storeButton"><a onClick="buyStore()">
@@ -1073,8 +1188,10 @@ function generateKey() {
     </button>
     <p id="costStore"> Hotdogs</p></a>
     <p id="amountStore">You own 0 stores.</p>
+	
+	</td>
 
-
+	<td>
     <!--factory-->
     <h3 id="factoryBuy"> Buy One Hotdog Factory</h3>
     <button id="factoryButton"><a onClick="buyFactory()">
@@ -1083,8 +1200,12 @@ function generateKey() {
     </button>
     <p id="costFactory"> Factory</p></a>
     <p id="amountFactory"> You own 0 factories.</p>
+	
+	</td>
 
-
+	<tr>
+	
+	<td>
     <!--carnival-->
     <h3 id="carnivalBuy"> Buy One Hotdog Carnival</h3>
     <button id="carnivalButton"><a onClick="buyCarnival()">
@@ -1093,8 +1214,9 @@ function generateKey() {
     </button>
     <p id="costCarnival"> Carnival</p></a>
     <p id="amountCarnival"> You own 0 Carnivals.</p>
-
-
+	</td>
+	
+	<td>
     <!--plant-->
     <h3 id="plantBuy"> Buy One Hotdog NPP</h3>
     <button id="plantButton"><a onClick="buyPlant()">
@@ -1103,8 +1225,9 @@ function generateKey() {
     </button>
     <p id="costPlant"> Hotdog NPP</p></a>
     <p id="amountPlant"> You own 0 Hotdog NPP.</p>
-
-
+	</td>
+	
+	<td>
     <!--portal-->
     <h3 id="portalBuy"> Buy One Hotdog Portal</h3>
     <button id="portalButton"><a onClick="buyPortal()">
@@ -1113,8 +1236,12 @@ function generateKey() {
     </button>
     <p id="costPortal"> Interdimensional Hotdog Portal</p></a>
     <p id="amountPortal"> You own 0 Hotdog Portals.</p>
-
-
+	</td>
+	
+	</tr>
+	<tr>
+	
+	<td>
     <!----matter condensers-->
     <h3 id="condenserBuy"> Buy One Matter Condenser</h3>
     <button id="condenserButton"><a onClick="buyCondenser()">
@@ -1123,8 +1250,9 @@ function generateKey() {
     </button>
     <p id="costCondenser"> Hotdog Matter Condenser</p></a>
     <p id="amountCondenser"> You own 0 Hotdog Gods.</p>
+	</td>
 
-
+	<td>
     <!----hotdog god-->
     <h3 id="godBuy"> Buy One Hotdog God</h3>
     <button id="godButton"><a onClick="buyGod()">
@@ -1133,8 +1261,9 @@ function generateKey() {
     </button>
     <p id="costGod"> Hotdog God</p></a>
     <p id="amountGod"> You own 0 Matter Condensers.</p>
+	</td>
 
-
+	<td>
   <!----hotdog country-->
   <h3 id="countryBuy"> Buy One Hotdog Country</h3>
   <button id="countryButton"><a onClick="buyCountry()">
@@ -1143,13 +1272,18 @@ function generateKey() {
   </button>
   <p id="costCountry"> Hotdog Country</p></a>
   <p id="amountCountry"> You own 0 Hotdog Countries.</p>
+	</td>
 
-    
+    </tr>
+	</table>
 
     <!--upgrades-->
     <h1 id="upgrades"><font color = "red"> Upgrades</h1></font>
 
-
+	
+	<table >
+	<tr>
+	<td>
     <!--vendor upgrade--->
     <h3 id="vendorUpgradeBuy">Upgrade Street Vendors</h3>
     <button id="vendorUpgrade"><a onClick="upgradeVendor()">
@@ -1157,8 +1291,8 @@ function generateKey() {
       alt = "vendor upgrade" width = "190px" height = "100px">
     </button>
     <p id="costUpgradeVendor"> Upgrade Vendor</p></a>
-
-    
+	</td>
+    <td>
     <!--store upgrade-->
     <h3 id="storeUpgradeBuy">Upgrade Hotdog Stores</h3>
     <button id="storeUpgrade"><a onClick="upgradeStore()">
@@ -1166,8 +1300,8 @@ function generateKey() {
       alt = "store upgrade" width = "190px" height = "100px">
     </button>
     <p id="costUpgradeStore" width = "190px" height = "100px">
-
-
+	</td>
+	<td>
     <!--Factory upgrade-->  
     <h3 id="factoryUpgradeBuy">Upgrade Hotdog Factories</h3>
     <button id="factoryUpgrade"><a onClick="upgradeFactory()">
@@ -1175,8 +1309,10 @@ function generateKey() {
       alt = "factory upgrade" width = "190px" height = "100px">
     </button>
     <p id="costUpgradeFactory" width = "190px" height = "100px">
-
-
+	</td>
+	</tr>
+	<tr>
+	<td>
     <!--Carnival Upgrade-->
     <h3 id="carnivalUpgradeBuy">Upgrade Hotdog Carnivals</h3>
     <button id="carnivalUpgrade"><a onClick="upgradeCarnival()">
@@ -1184,8 +1320,8 @@ function generateKey() {
       alt = "carnival upgrade" width = "190px" height = "100px">
     </button>
     <p id="costUpgradeCarnival" width = "190px" height = "100px">
-
-
+	</td>
+	<td>
     <!--Plant Upgrade-->
     <h3 id="plantUpgradeBuy">Upgrade Hotdog NPP</h3>
     <button id="plantUpgrade"><a onClick="upgradePlant()">
@@ -1193,8 +1329,8 @@ function generateKey() {
       alt = "plant upgrade" width = "190px" height = "100px">
     </button>
     <p id="costUpgradePlant" width = "190px" height = "100px">
-
-     
+	</td>
+     <td>
     <!--Portal Upgrade-->
     <h3 id="portalUpgradeBuy">Upgrade Hotdog Portal</h3>
     <button id="portalUpgrade"><a onClick="upgradePortal()">
@@ -1202,8 +1338,10 @@ function generateKey() {
       alt = "portal upgrade" width = "190px" height = "100px">
     </button>
     <p id="costUpgradePortal" width = "190px" height = "100px">
-
-     
+	</td>
+     </tr>
+	 <tr>
+	 <td>
     <!--Condenser Upgrade-->
     <h3 id="condenserUpgradeBuy">Upgrade Matter Condenser</h3>
     <button id="condenserUpgrade"><a onClick="upgradeCondenser()">
@@ -1211,8 +1349,8 @@ function generateKey() {
       alt = "condenser upgrade" width = "190px" height = "100px">
     </button>
     <p id="costUpgradeCondenser" width = "190px" height = "100px"> 
-
-
+	</td>
+	<td>
     <!--God Upgrade-->
     <h3 id="godUpgradeBuy">Upgrade Hotdog God</h3>
     <button id="godUpgrade"><a onClick="upgradeGod()">
@@ -1220,17 +1358,18 @@ function generateKey() {
       alt = "god upgrade" width = "190px" height = "100px">
     </button>
     <p id="costUpgradeGod" width = "190px" height = "100px">   
-
-     
+	 </td>
+     <td>
      <!--Country Upgrade-->
     <h3 id="countryUpgradeBuy">Upgrade Hotdog Country</h3>
     <button id="countryUpgrade"><a onClick="upgradeCountry()">
       <img src = "https://diginomica.com/sites/default/files/images/2013-07/Fotolia_53353987_Subscription_Monthly_M.jpg"
       alt = "country upgrade" width = "190px" height = "100px">
     </button>
-    <p id="costUpgradeCountry" width = "190px" height = "100px">    
-     
-      
+    <p id="costUpgradeCountry" width = "190px" height = "100px">
+	 </td>
+     </tr>
+     </table>
     
    <!--Ascension stuff-->
    <h3 id="ascensionUpgradeBuy">Ascend</h3>
