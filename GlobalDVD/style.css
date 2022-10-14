@@ -1,0 +1,14 @@
+img {
+  width: 0px;
+  height: 0px;
+}
+
+canvas {
+  background-color: #000000;
+}
+
+li {
+  color: 0x112233;
+  font-family:verdana;
+  font-size: 12px;
+}

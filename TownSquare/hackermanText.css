@@ -1,0 +1,20 @@
+p {
+  color: #a6ff91;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+h1 {
+  color: #00FF00;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+h2 {
+  color: #00FF00;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+a {
+	cursor: pointer;
+	color: #00FF00;
+	text-decoration: underline;
+}

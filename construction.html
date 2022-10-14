@@ -1,0 +1,41 @@
+<body style="background-color: white; overflow: hidden">
+<link rel="stylesheet" href="style.css">
+
+<canvas class="construction" id="construction" height="100px"></canvas>
+<img src="bitmap.svg" alt="early access" class="constructionText">
+
+<script>
+
+var canvas = document.getElementById("construction");
+var ctx = canvas.getContext("2d");
+
+
+function fillCanvas() {
+    ctx.fillStyle = "black";
+    ctx.fillRect(-200, 0, canvas.width * 1000, canvas.height * 1000);
+}
+
+function draw(xOffset) {
+	ctx.fillStyle = "#78703c";
+    var x = -100 + (xOffset % 30);
+    while(x < canvas.width + 10) {
+    		ctx.fillRect(x - 50, 0, 15, canvas.height * 200);
+    		x+=30;
+    }
+}
+
+fillCanvas();
+
+
+var xOffset = 0;
+
+var intervalId = window.setInterval(function(){
+	ctx.canvas.width = window.innerWidth - 34; // i really hope this is centered properlly
+	ctx.rotate(-45 * Math.PI / 180);
+  	fillCanvas();
+    draw(xOffset);
+    xOffset += 1;
+}, 30);
+
+</script>
+</body>

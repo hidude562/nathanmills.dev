@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="../style.css">
+
+<html>
+<head>
+	<title>nathanmills.dev - GlobalDVD</title>
+	<link rel="icon" href="../icon.png">
+	
+	<object type="text/html" data="../banner.html" width=100% style="height: 200px"></object>
+</head>
+<body>
+
+<div class="main_layer">
+<div class="nav">
+	<!-- Include the nav table -->
+	<object type="text/html" data="../nav.html" height=100%></object>
+</div>
+
+<div class="page_dis">
+
+<h1>Global DVD screensaver</h1>
+
+<p>Spend your day watching a bouncing, globally synchronized DVD logo with people around the world</p>
+
+<link rel="stylesheet" href="style.css">
+<canvas id="canvas" height="540" width="740"></canvas>
+<br>
+<img id="0" src="0.png" alt="">
+<img id="1" src="1.png" alt="">
+<img id="2" src="2.png" alt="">
+<img id="3" src="3.png" alt="">
+<img id="4" src="4.png" alt="">
+<img id="5" src="5.png" alt="">
+<p>This program is the DVD screensaver. It is synchronized to have the DVD's position be the same no matter where you view it from.</p>
+
+<script>
+  const canvas = document.querySelector('#canvas');
+  const ctx = canvas.getContext('2d');
+  const dvd_cycles_until_reset = 268058;
+  var x = 2;
+  var y = 1;
+  var utc;
+  var image_index = 0;
+  var sim_time = 0;
+  
+  var logo_width = 170;
+  var logo_height = 75;
+  
+  var screen_x = 740;
+  var screen_y = 540;
+  
+  var x_speed = 2;
+  var y_speed = 1;
+  
+  function get_relative_utc() {
+	utc = Date.now();
+	utc = Math.floor(((utc/10)) % dvd_cycles_until_reset);
+  }
+  
+  function draw() {
+	var img = document.getElementById(image_index%6);
+	ctx.drawImage(img, x, y);
+  }
+  
+  function update_client() {
+	while (sim_time < utc) {
+		simulate();
+	}
+  }
+
+  function simulate() {
+	x += x_speed;
+	y += y_speed;
+	if(x + logo_width > screen_x || x < 0) {
+		x_speed = 0 - x_speed;
+		image_index++;
+	}
+	if(y + logo_height > screen_y || y < 0) {
+		y_speed = 0 - y_speed;
+		image_index++;
+		//I'm too lazy to add sudo-randomness to this
+	}
+	sim_time+=1;
+  }
+  
+  var intervalId = window.setInterval(function(){
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	get_relative_utc();
+	update_client();
+	draw();
+  }, 20);
+  
+  window.onload = function() {
+	// I should test this when its about to reset
+	get_relative_utc();
+	console.log(utc);
+	update_client();
+  }
+
+</script>
+
+</div>
+</div>
+
+<object type="text/html" data="../footer.html" width=100%></object>
+</body>
+</html>

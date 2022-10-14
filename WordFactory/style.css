@@ -1,0 +1,64 @@
+div.page_dis {
+  background-color: #19182B;
+}
+
+@font-face {
+  font-family: OldEng;
+  src: url(OldEnglish.woff);
+}
+
+p {
+  color: #FFFFFF;
+  font-family:verdana;
+}
+
+p.mini {
+  color: #FFFFFF;
+  font-family:verdana;
+  font-size: 12px;
+}
+
+p.error {
+  color: #FF1032;
+  font-family:verdana;
+  font-size: 12px;
+}
+
+warning {
+  color: #EEFF12;
+  font-family:verdana;
+  font-size: 12px;
+}
+
+p.fancy {
+  color: #FFFFFF;
+  font-family: OldEng;
+  font-size: 42px;
+}
+
+label {
+  color: #FFFFFF;
+  font-family:verdana;
+  font-size: 15px;
+}
+
+h1 {
+	color: #FFFFFF;
+}
+
+.top {
+  position:relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background-image: url("banner.png");
+}
+
+.banner {
+    position:fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-repeat: repeat-x;
+}
