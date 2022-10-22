@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="../style.css">
 
-<html>
+<html lang="en">
 <head>
 	<title>nathanmills.dev</title>
+	<!-- Include -->
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+	
 	<link rel="icon" href="../icon.png">
 	<object type="text/html" data="../banner.html" width=100% style="height: 200px"></object>
 </head>
@@ -19,7 +23,7 @@
 <script>
 async function query(data) {
   // https://api-inference.huggingface.co/models/sentence-transformers/all-mpnet-base-v2
-  api_key = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  api_key = "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"
   if(document.getElementById('api_key').value != "") {
   	api_key = document.getElementById('api_key').value
   }
@@ -263,7 +267,6 @@ function change_foot_info(update) {
     <option value="sentence-transformers/all-roberta-large-v1">all-roberta-large-v1</option>
     <option value="sentence-transformers/all-mpnet-base-v2">all-mpnet-base-v2</option>
 	<option value="flax-sentence-embeddings/all_datasets_v3_distilroberta-base">all_datasets_v3_distilroberta-base</option>
-  </select><br><br>
 
 <p>Input your free HuggingFace API key here, it's not required to use this but it will allow you to send more data to the server.</p>
 <input type="text" id="api_key">
