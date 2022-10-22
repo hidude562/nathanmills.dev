@@ -87,6 +87,11 @@ div.page_dis-incognito {
 	width: 100%;
 }
 
+textarea {
+	width: calc(100% - 10px);
+	resize: none;
+}
+
 table.nav {
 	background-color: rgb(238, 238, 227);
 }
