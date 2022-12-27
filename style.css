@@ -96,6 +96,10 @@ table.nav {
 	background-color: rgb(238, 238, 227);
 }
 
+table.bordered-2 {
+	border: 1px solid;
+}
+
 th {
 	font-family: 'Trebuchet MS', sans-serif;
 	font-size: 12px;
