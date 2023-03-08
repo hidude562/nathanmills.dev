@@ -134,7 +134,12 @@
                             //console.log(memory[pointer])
                         }
                         if (char == ",") {
-                            memory[pointer] = prompt("input character:").charCodeAt(0);
+                            let input = prompt("input character:").charCodeAt(0);
+							if(isNaN(input)) {
+								memory[pointer] = 0;
+							} else {
+								memory[pointer] = input;
+							}
                         }
                     }
 
