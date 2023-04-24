@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../niceLookingTable.css">
+
+<html lang="en">
+<head>
+	<title>nathanmills.dev - textToMusic</title>
+	<!-- Include -->
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+	<meta name="description" content="Easily classify text using magic">
+	
+	<link rel="icon" href="../icon.png">
+	<object type="text/html" data="../banner.html" width=100% style="height: 200px"></object>
+</head>
+<body>
+
+<div class="main_layer">
+<div class="nav">
+	<!-- Include the nav table -->
+	<object type="text/html" data="../nav.html" height=100%></object>
+</div>
+
+<div class="page_dis">
+<h1>textToMusic</h1>
+
+<p>This is kind of cool use case of the "EZclassifier", it takes in text and finds an fitting song by legendary composer Kevin Macleod for background music. I think i got the idea from kobisteve</p>
+
+<br>
+
+<textarea type="text" id="textInput" rows="10" cols="70" style="width: calc(100% - 15px)">I walk up to the local swordsman and ask him if i can buy his sword.</textarea>
+<br>
+<button onclick="run()">Run</button>
+
+<br>
+
+<h2>Top choice:</h2>
+<h2 id="Top"></h2>
+<div id="other"></div>
+
+</div>
+</div>
+
+<object type="text/html" data="../footer2023.html" width=100%></object>
+</body>
+</html>
+
+<script>
+	function addNewRow() {
+		var newRow = document.getElementById("dataset").insertRow(1);
+		
+		var cell1 = newRow.insertCell(0);
+		cell1.setAttribute("contenteditable", true)
+		cell1.setAttribute("id", "text")
+		var cell2 = newRow.insertCell(1)
+		cell2.setAttribute("contenteditable", true);
+		cell2.setAttribute("id", "output")
+	}
+	function deleteRow() {
+		document.getElementById("dataset").deleteRow(1);
+	}
+</script>
+
+<script>
+	function newDatasetClassifier() {
+		var rows = document.getElementById("dataset").rows
+		dataPoints = []
+		
+		for(var row of rows) {
+			let text = row.children[0].textContent;
+			let out = row.children[1].textContent;
+			dataPoints.push(new DataPoint(text, out))
+			console.log(out);
+		}
+	}
+	
+	function saveClassifier() {
+		console.log("Saving")
+		document.getElementById("saveButton").href = "data:text/plain," + JSON.stringify(dataPoints)
+	}
+	
+	
+	function loadClassifier() {
+		console.log("LOADING")
+		dataPoints = [{"output":"https://www.youtube.com/embed/twdNHG3NKQU","text":"wholesome carefree relaxing invigorating refreshing joyous inspiring cheerful content bright delightful peppy"},{"output":"https://www.youtube.com/embed/kRGPOTkQpus","text":"conquest prospering nation prosperous citizens fabulous dynamic  vivacious wealthy amazing promising magnanimous glorious triumphant powerful"},{"output":"https://www.youtube.com/embed/co4NWTsJdfI","text":"war military dramatic heroic courageous brave strength honor commitment victory conqueror defender patriotic"},{"output":"https://www.youtube.com/embed/PVZbjORqt6A","text":"mysterious unresolved spooky haunting ghostly specter apparition chill shiver dread phobia fear anxiety darkness"},{"output":"https://www.youtube.com/embed/CJu63gMNhCE","text":"forecast forecast elevator relaxing bleak chill warm inviting cozy comfortable security safe guarded secure"},{"output":"https://www.youtube.com/embed/yvMxSz7dIjI","text":"dystopian thinking contemplating oppressive, repressive, draconian, oppressive, authoritarian, totalitarian, oppressive, oppressive, fear-mongering, terrorizing, subjugation, subjugated, subjugation, control, domination, domination, enslavement, subjugation, enslavement, domination."},{"output":"https://www.youtube.com/embed/VlKcRgGkPBI","text":"shocked dramatic anger fury rage resentment hostility animosity aggression animosity antagonism despair distress turbulence"},{"output":"https://www.youtube.com/embed/lZDdOiaN_TA","text":"tyrannical regime dramatic upheaval tumultuous unrest oppressive control autocratic rule tumultuous revolution authoritarianism totalitarianism cataclysmic shift"},{"output":"https://www.youtube.com/embed/O4D3fMpDNCU","text":"adventurous voyage heroically brave captain courageous crew adventurous destination majestic ocean voyage perilous journey legendary vessel storied navigator intrepid adventurers tempestuous sea chartered ship"},{"output":"https://www.youtube.com/embed/VDzp2TnoFG0","text":"plotting planning dramatic suspenseful clever mysterious daring cunning devious intrigue risky adventurous strategic adventurous daring"},{"output":"https://www.youtube.com/embed/f5Tatbs1WxY","text":"trivial fun quirky zany comical absurd joyous laughter jovial humorous wacky outrageous festive gleeful"},{"output":"https://www.youtube.com/embed/i-Taa4CS_MQ","text":"fun party people lively music dancing drinks food laughter joy merriment decorations lights balloons streamers confetti costumes entertainment"},{"output":"https://www.youtube.com/embed/c4EkfWFqKzE","text":"conflict final scary omnious sorrowful despairing destitute lamenting forlorn disheartened hopeless"},{"output":"https://www.youtube.com/embed/xbuzzXaG0VQ","text":"dramatic final scary ghost haunted night dark misty spooky eerie spectral phantom creepy apparition phantom frightful menacing dread"},{"output":"https://www.youtube.com/embed/C6hyc4V8To0","text":"sneaky complex scary suspicious ghostly eerie lurking uncanny supernatural spooky frightening phantasmal phantom spectral mysterious"},{"output":"https://www.youtube.com/embed/sXDPngaPDuU","text":"mischievous happy goofy carefree silly buoyant joyous jubilant elated optimistic content placid contentment blissful pleasure delight exuberance gladness gaiety merriment mirth playfulness"},{"output":"https://www.youtube.com/embed/VKGKAifd8B0","text":"wholesome outside happy fragrant scenic heavenly rustic cozy tranquil misty refreshing pastoral natural bucolic dreamy majestic blooming vernal"},{"output":"https://www.youtube.com/embed/hh61GmaTmjc","text":"industrious bustling dystopian commercialized mechanized automated congested"},{"output":"https://www.youtube.com/embed/zvPYgXf79LY","text":"conflict scary sneaky thrilling danger risk bold courageous adventure daring brave hidden ruthless"},{"output":"https://www.youtube.com/embed/QrqjLoPbnyY","text":"scheming contemplating sneaky plotting conniving strategic shrewd calculating ingenious calculating resourceful manipulative"},{"output":"https://www.youtube.com/embed/XosfAzrpjWQ","text":"silly quirky goofy whimsical charming bubbly vivacious delightful playful mischievous animated bouncy jovial joyous bubbly jolly exuberant enthusiastic sunny sparkly laugh-filled gregarious rapturous"},{"output":"https://www.youtube.com/embed/_Mcn4OyNAg4","text":"medieval outside villagers ancient pathways fortress ramparts castle walls cobblestoned moat drawbridge fortress keep"},{"output":"https://www.youtube.com/embed/wNjJiZk7H28","text":"relaxing happy serene content tranquil blissful peaceful joyous calm satisfaction rapture delight sanctuary oasis rejuvenation respite"},{"output":"https://www.youtube.com/embed/UiHkZTeXrcA","text":"won happy completing joyous journey blissful victory vibrant success blessed accomplishment ecstatic delight prosperous progress."},{"output":"https://www.youtube.com/embed/y4zXHvaQ7Ng","text":"thinking mischievous sinister devious sly cunning wily clever conniving crafty manipulative scheming calculating purposeful shrewd ingenious"},{"output":"https://www.youtube.com/embed/LrM_Y39Gmhk","text":"silly obnoxious funny clown circus amusing goofy whimsical jester pranks trickster gags mischievous jocular comical boisterous pratfall clowning buffoonery"},{"output":"https://www.youtube.com/embed/XhCARou6mRI","text":"silly goofy mindless jester clown pranks comedy laughter joking jests fun joyous blissful"}]
+	}
+	
+	function run() {
+		let inputText = document.getElementById('textInput').value;
+		quereyNeuralOutputs(inputText)
+		console.log(inputText)
+	}
+</script>
+
+<script>
+	class DataPoint {
+		constructor(text, output, neuralPoints=null) {
+			this.output = output
+			this.text = text
+		}
+	}
+</script>
+
+<script>
+	var API_KEY = "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";
+	var outputsThisText;
+	var dataPoints = []
+	
+	
+	async function query(data) {
+		console.log(JSON.stringify(data))
+		const response = await fetch(
+			"https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2",
+			{
+				headers: { Authorization: "Bearer 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" },
+				method: "POST",
+				body: JSON.stringify(data),
+			}
+		);
+		const result = await response.json();
+		return result;
+	}
+	
+	function eToTheXOfArray(data) {
+		for(var i = 0; i < data.length; i++) {
+			data[i] = Math.pow(Math.E, data[i] * 10)
+		}
+		return data
+	}
+	
+	function getDataPointsAsInput() {
+		newDat = []
+		for(var point of dataPoints) {
+			newDat.push(point.text)
+		}
+		return newDat
+	}
+	
+	function compareNums(a, b) {
+		if(a > b) {
+			return -1
+		} else if(b > a) {
+			return 1
+		}
+		
+		return 0
+	}
+	
+	function quereyNeuralOutputs(input) {
+		loadClassifier()
+		
+		let output;
+		query({"inputs": {"source_sentence": input, "sentences": getDataPointsAsInput()}}).then((response) => {
+			output = eToTheXOfArray(response)
+			let highestVal = -1
+			let highestOutput = "Nothing??"
+			
+			let outputs = []
+			let outputValues = []
+			
+			let totalVal = 0;
+			for(let i = 0; i < output.length; i++) {
+				arrDiff = output[i]
+				console.log(output[i]);
+				totalVal += arrDiff
+				if(arrDiff > highestVal) {
+					highestVal = arrDiff
+					highestOutput = dataPoints[i].output
+				}
+				outputValues.push(arrDiff)
+				outputs.push(dataPoints[i].output)
+			}
+			
+			// https://stackoverflow.com/questions/11499268/sort-two-arrays-the-same-way
+			indices = Array.from(outputValues.keys())
+                     .sort( (a,b) => compareNums(outputValues[a], outputValues[b]) )
+			console.log(indices)
+                     
+			outputValues = indices.map(i => outputValues[i])
+			outputs = indices.map(i => outputs[i])
+			
+			document.getElementById("Top").innerHTML = "<iframe width='420' height='315' fetchpriority='high' src='" + highestOutput + "?autoplay=1&mute=0'></iframe>" + "<p>" + Math.round(highestVal / totalVal * 10000) / 100 + "%</p><br>"
+			
+			document.getElementById("other").innerHTML = "<h3>Other choices:</h3>"
+			for(let i = 1; i < 5; i++) {
+				document.getElementById("other").innerHTML += "<iframe width='320' fetchpriority='low' height='200' src='" + outputs[i] + "'></iframe>" + "<p>" + Math.round(outputValues[i] / totalVal * 10000) / 100 + "%</p><br>"
+			}
+		});
+	}
+</script>
