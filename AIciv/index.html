@@ -77,7 +77,8 @@
 <button onclick="getEdictInput()">Enter</button>
 
 <br><br>
-<button onclick='chatAIAdvisor(document.getElementById("api").value)'>Ask your advisor for ideas</button>
+<button onclick='smartAdvisor()'>Ask your advisor for ideas</button>
+<button onclick='dumbAdvisor()'>Ask your <i>other</i> advisor for ideas</button>
 <p id="advisorText"></p>
 
 <script id="AIcode"></script>
@@ -210,7 +211,7 @@ function chatAIanswering(prompt, text, api) {
 		"messages": [
 			{
 				"role": "system",
-				"content": "Your job is to keep the game as balanced as possible."
+				"content": "Let any input through but make sure nothing is too overpowered."
 			},
 			{
 				"role": "user",
@@ -223,8 +224,16 @@ function chatAIanswering(prompt, text, api) {
     xhr.send(data);
 }
 
+function dumbAdvisor() {
+	chatAIAdvisor(" What should I do? Create as silly of solutions as possible and write it with <ul> and <p> tags. Address only one or two major issues.", document.getElementById("api").value)
+}
+
+function smartAdvisor() {
+	chatAIAdvisor(" What should I do? Be as creative as possible and write it with <ul> and <p> tags. Address only one or two major issues.", document.getElementById("api").value)
+}
+
 // This is for the advisor
-function chatAIAdvisor(api) {
+function chatAIAdvisor(moreInfo, api) {
 	var url = "https://api.openai.com/v1/chat/completions";    
 
     var xhr = new XMLHttpRequest();
@@ -245,12 +254,8 @@ function chatAIAdvisor(api) {
 		"model": "gpt-3.5-turbo",
 		"messages": [
 			{
-				"role": "system",
-				"content": "Your job is to come up with outrageous, but intelligent ideas to solve your nation's problems relevent to the era of the civilization, not just generalized ideas."
-			},
-			{
 				"role": "user",
-				"content": ` + '"' + getNationStatus() + " What should I do? Be as creative as possible and write it with <ul> and <p> tags. Address only one or two major issues." + `"
+				"content": ` + '"' + getNationStatus() + moreInfo + `"
 			}
 		],
 		"temperature": 0.7,
