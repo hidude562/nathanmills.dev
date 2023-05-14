@@ -28,7 +28,7 @@
 
 <h1>AIciv</h1>
 
-<p>AIciv is a turn-based strategy game where players are able to issue absurd edicts to fix their nation. This program uses GPT-3 for text comprehension, so it can comprehend any input you give it. Running low on food? Just tell the game to make hotdogs an official currency of your nation, and it will adjust the economy of your civilization accordingly.  There is not "winning" in the game, but rather, players strive to keep their nation stable for as long as possible.</p>
+<p>AIciv is a turn-based strategy game where players are able to issue absurd edicts to fix their nation. This program uses GPT-3 for text comprehension, so it can comprehend any input you give it. Running low on food? Just tell the game to make hotdogs an official currency of your nation, and it will adjust the economy of your civilization accordingly.  The goal of the game is to have as high of a score as possible by turn 100. You can continue the game afterwards however. You earn score based off of many factors like your military, gdp and other things. It is possible to loose the game before turn 100 if your people revolt or you have a large deficit of money or resources.</p>
 <br>
 <button onclick="newGame()">New Game</button>
 <br><br>
@@ -64,8 +64,10 @@
 
 </div>
 
+<p id="turn"></p>
 <p id="population"></p>
-<br><!-- Game canvas here--><br>
+
+<p id="latestReport">Latest Report: Nothing</p>
 
 <input type="text" id="buildingInputBox" placeholder="What would you like to build?">
 <button onclick="getBuildingInput()">Enter</button>
@@ -73,6 +75,9 @@
 
 <input type="text" id="edictInputBox" placeholder="What would you like to do?">
 <button onclick="getEdictInput()">Enter</button>
+
+<br><br>
+<button onclick="getEdictInput()">Ask your advisor for ideas</button>
 
 
 <script id="AIcode"></script>
@@ -131,6 +136,17 @@ function newGame() {
 	window.location.reload(true);
 }
 
+
+
+console.defaultLog = console.log.bind(console);
+console.logs = [];
+console.log = function(){
+    // default &  console.log()
+    console.defaultLog.apply(console, arguments);
+    // new & array data
+    console.logs.push(Array.from(arguments));
+}
+
 function AIanswering(prompt, text, api) {
 	var url = "https://api.openai.com/v1/completions";    
 
@@ -144,6 +160,8 @@ function AIanswering(prompt, text, api) {
        if (xhr.readyState === 4) {
           var output = 'if(true)' +(JSON.parse(xhr.responseText).choices[0].text);
           console.log(output);
+		  console.log(prompt)
+		  console.log(text)
           var element = document.getElementById("AIcode");
           element.text =  "function AIaction(response) {\n" + output + "resetScript();}";
 
@@ -152,7 +170,7 @@ function AIanswering(prompt, text, api) {
        }};
 
     var data = `{
-        "model": "text-davinci-002",
+        "model": "text-davinci-003",
         "prompt": ` + prompt + text + `\\")",
         "temperature": 0.7,
         "max_tokens": 256,
@@ -165,10 +183,63 @@ function AIanswering(prompt, text, api) {
     xhr.send(data);
 }
 
+// kinda bad prompting
+// but works i think
+function chatAIanswering(prompt, text, api) {
+	var url = "https://api.openai.com/v1/chat/completions";    
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Authorization", "Bearer " + api);
+
+    xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4) {
+          var output = 'if(true)' +(JSON.parse(xhr.responseText).choices[0].message.content);
+          console.log(output);
+          var element = document.getElementById("AIcode");
+          element.text =  "function AIaction(response) {\n" + output + "resetScript();}";
+
+          AIaction(text);
+          newTurn();
+       }};
+
+	var data = `{
+		"model": "gpt-3.5-turbo",
+		"messages": [
+			{
+				"role": "user",
+				"content": ` + prompt + text + `\\")"
+			}
+		],
+		"stop": ["\\n\\n"]
+	}`;
+	/*
+    var data = `{
+        "model": "gpt-3.5-turbo",
+        "messages": [
+			{"role": "user", "content": "Based off the prompt, finish where the function left off:\n" +` + prompt + text + `\\")" }
+		],
+		// ` + prompt + text + `\\")",
+        "temperature": 0.7,
+        "max_tokens": 256,
+        "top_p": 1,
+        "frequency_penalty": 0,
+        "presence_penalty": 0,
+        "stop": ["\\n\\n"]
+    }`;
+	*/
+
+    xhr.send(data);
+}
+
+
+
 function getBuildingInput() {
 	var textInput = document.getElementById("buildingInputBox").value;
     if(textInput != "") {
-    	AIanswering(buildingPrompt, textInput, document.getElementById("api").value);
+    	chatAIanswering(buildingPrompt, textInput, document.getElementById("api").value);
     } else {
     	newTurn();
     }
@@ -177,7 +248,7 @@ function getBuildingInput() {
 function getEdictInput() {
 	var textInput = document.getElementById("edictInputBox").value;
     if(textInput != "") {
-    	AIanswering(edictPrompt, textInput, document.getElementById("api").value);
+    	chatAIanswering(edictPrompt, textInput, document.getElementById("api").value);
     } else {
     	newTurn();
     }
@@ -225,7 +296,7 @@ function randomEvent() {
 
 
 function getTechAge() {
-	eras = ["Stone age", "Bronze age", "Iron age", "Classical era", "Middle ages", "Late middle ages", "Renaissance era", "Industrial era", "Late Industrial era", "First globalization era", "Early Atomic era", "Atomic era", "Information era", "Near-future era", "The AI era", "Quantum age", "The second space age", "Fusion age", "New Exploration era", "The Immortal era", "Animatter Golden Age", "Terraforming revolution", "Time travel Exploration", "Age of Black Holes", "The very-far future..."];
+	eras = ["Stone age", "Bronze age", "Iron age", "Classical era", "Middle ages", "Late middle ages", "Renaissance era", "Industrial era", "Late Industrial era", "Modern era", "Early Atomic era", "Atomic era", "Information era", "Near-future era", "The AI era", "Quantum age", "The second space age", "Fusion age", "New Exploration era", "The Immortal era", "Animatter Golden Age", "Terraforming revolution", "Time travel Exploration", "Age of Black Holes", "The very-far future..."];
     if(technologyLevel > eras.length) {
 		return "The very-far future...";
 	} else {
@@ -269,6 +340,8 @@ function updateDisplay() {
 	document.getElementById("energy").innerHTML            = prettyNum(Math.round(energy));
 	document.getElementById("health").innerHTML            = prettyNum(Math.round(health));
 	document.getElementById("score").innerHTML             = prettyNum(Math.round(score));
+	document.getElementById("turn").innerHTML              = "Turn: " + prettyNum(turn);
+	document.getElementById("latestReport").innerHTML      = "Latest Report: " + console.logs[console.logs.length - 1]
 }
 
 function newGame() {
@@ -338,6 +411,12 @@ function newTurn() {
 	if(hasLostGame) {
 		return;
 	}
+	
+	// TODO: Random chance events
+	if(Math.random() < 0.2) {
+		
+	}
+	
 	var populationModifier = Math.sqrt(((Math.sqrt(technologyLevel)) * ((health / 1000) + 1) * ((happiness / 1000) + 1) * ((transportation / 1000) + 1)) / 50) + 1;
     
     foodIncomeModified     = foodIncome;
@@ -371,7 +450,7 @@ function newTurn() {
     var previousCash = totalCash;
 	var inflationNegativeBonus = newAnnualIncome * Math.pow(inflation, 2.2);
     
-    totalCash += newAnnualIncome / 6.65; // THe US earns 3.46T per year, vs the GDP of 23T, so i did that ratio for the totalCash
+    totalCash += newAnnualIncome / 6.65;
     totalCash /= (inflation + 1);
 	totalCash += annualIncome / (inflation / 10 + 1);
 	
@@ -392,6 +471,7 @@ function newTurn() {
 	randomEvent();
 	calculateScore();
     updateDisplay();
+	turn++;
 }
 
 newGame();
