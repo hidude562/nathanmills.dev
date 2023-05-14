@@ -77,8 +77,8 @@
 <button onclick="getEdictInput()">Enter</button>
 
 <br><br>
-<button onclick="getEdictInput()">Ask your advisor for ideas</button>
-
+<button onclick='chatAIAdvisor(document.getElementById("api").value)'>Ask your advisor for ideas</button>
+<p id="advisorText"></p>
 
 <script id="AIcode"></script>
 
@@ -95,7 +95,7 @@ var happiness = 0;
 var population = 0;
 var militaryStrength = 0; // TODO:
 var pollution = 0;
-var transportation = 0; // TODO:
+var transportation = 0;
 var education = 0;
 var research = 0;
 var corruption = 0;
@@ -209,32 +209,116 @@ function chatAIanswering(prompt, text, api) {
 		"model": "gpt-3.5-turbo",
 		"messages": [
 			{
+				"role": "system",
+				"content": "Your job is to keep the game as balanced as possible."
+			},
+			{
 				"role": "user",
 				"content": ` + prompt + text + `\\")"
 			}
 		],
 		"stop": ["\\n\\n"]
 	}`;
-	/*
-    var data = `{
-        "model": "gpt-3.5-turbo",
-        "messages": [
-			{"role": "user", "content": "Based off the prompt, finish where the function left off:\n" +` + prompt + text + `\\")" }
-		],
-		// ` + prompt + text + `\\")",
-        "temperature": 0.7,
-        "max_tokens": 256,
-        "top_p": 1,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
-        "stop": ["\\n\\n"]
-    }`;
-	*/
 
     xhr.send(data);
 }
 
+// This is for the advisor
+function chatAIAdvisor(api) {
+	var url = "https://api.openai.com/v1/chat/completions";    
 
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Authorization", "Bearer " + api);
+
+    xhr.onreadystatechange = function () {
+       if (xhr.readyState === 4) {
+          var output = (JSON.parse(xhr.responseText).choices[0].message.content);
+          var element = document.getElementById("advisorText");
+          element.innerHTML = output
+          newTurn();
+       }};
+
+	var data = `{
+		"model": "gpt-3.5-turbo",
+		"messages": [
+			{
+				"role": "system",
+				"content": "Your job is to come up with outrageous, but intelligent ideas to solve your nation's problems relevent to the era of the civilization, not just generalized ideas."
+			},
+			{
+				"role": "user",
+				"content": ` + '"' + getNationStatus() + " What should I do? Be as creative as possible and write it with <ul> and <p> tags. Address only one or two major issues." + `"
+			}
+		],
+		"temperature": 0.7,
+		"top_p": 0.5
+	}`;
+
+    xhr.send(data);
+}
+
+function getNationStatus() {
+	var status = "Your nation is in the " + getTechAge() + "."
+	if((research / 1600) * Math.pow(0.7, Math.floor(technologyLevel)) < 25) {
+		status += " Your research is extremely slow and desperately needs improvement."
+	} else if((research / 1600) * Math.pow(0.7, Math.floor(technologyLevel)) < 75) {
+		status += " Your research is somewhat slow."
+	} else {
+		status += " Your research is average."
+	}
+	
+	if(resources > totalCash / 5) {
+		status += " You have a great amount of resources compared to your money."
+	} else if(resources > totalCash / 10) {
+		status += " You have an alright amount of resources to your money."
+	} else if(resources > totalCash / 40) {
+		status += " You have a small amount of resources to your money."
+	} else {
+		status += " You have a tiny amount of resources to your money."
+	}
+	
+	status += " You have a GDP capita of $" + commaNum(Math.round(newAnnualIncome / population)) + ". You also have $" + Math.floor(totalCash) + " in your treasury and " + Math.floor(population) + " people in your city."
+	status += " Inflation is at " + Math.round(inflation * 100) + "%."
+	
+	if(happiness > 700) {
+		status += " Your people are content with your rule."
+	} else if(happiness > 40) {
+		status += " There is only some dissention in your city."
+	} else {
+		status += " Your people are not happy with your rule."
+	}
+	
+	if(happiness > 700) {
+		status += " Corruption is rampant."
+	} else if(happiness > 40) {
+		status += " There is some corruption that is happening in your city."
+	} else {
+		status += " There is no corruption."
+	}
+	
+	if(pollution > 1500) {
+		status += " Your city is hardly functioning due to pollution."
+	} else if(pollution > 500) {
+		status += " Your city is suffering a little from pollution."
+	}
+	
+	if(infastructure > 3000) {
+		status += " Your city has great infastructure."
+	} else if(infastructure > 500) {
+		status += " Your city has some infastructure."
+	}
+	
+	if(transportation > 3000) {
+		status += " Your city has great transportation."
+	} else if(transportation > 500) {
+		status += " Your city has some transportation."
+	}
+	
+	return status
+}
 
 function getBuildingInput() {
 	var textInput = document.getElementById("buildingInputBox").value;
@@ -360,6 +444,8 @@ function newGame() {
 	research        = 5;
 	corruption      = 120;
 	crime           = 150;
+	
+	updateDisplay()
 }
 
 function calculateScore() {
@@ -389,6 +475,8 @@ function scenario1() {
     inflation       = 0.08;
     health          = 350;
     happiness       = 400;
+	
+	updateDisplay()
 }
 
 function scenario2() {
@@ -405,16 +493,13 @@ function scenario2() {
     inflation       = 0.08;
     health          = 350;
     happiness       = 400;
+	
+	updateDisplay()
 }
 
 function newTurn() {
 	if(hasLostGame) {
 		return;
-	}
-	
-	// TODO: Random chance events
-	if(Math.random() < 0.2) {
-		
 	}
 	
 	var populationModifier = Math.sqrt(((Math.sqrt(technologyLevel)) * ((health / 1000) + 1) * ((happiness / 1000) + 1) * ((transportation / 1000) + 1)) / 50) + 1;
@@ -441,7 +526,7 @@ function newTurn() {
 	population += (Math.sqrt(Math.pow(food, populationModifier) * Math.pow(water, populationModifier)) - population) / 10;
     
     
-    technologyLevel += (research / 5000) * (3 / (Math.floor(technologyLevel) + 1));
+    technologyLevel += (research / 5000) * Math.pow(0.7, Math.floor(technologyLevel));
     percentToNextEra = (technologyLevel % 1) * 100;
 	
     // Calculate annualIncome (GDP)
