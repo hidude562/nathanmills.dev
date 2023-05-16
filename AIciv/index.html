@@ -24,13 +24,12 @@
 <div class="page_dis">
 
 
-<object type="text/html" data="../construction.html" width=100% style="height: 200px"></object>
+<!-- <object type="text/html" data="../construction.html" width=100% style="height: 200px"></object> -->
 
 <h1>AIciv</h1>
 
-<p>AIciv is a turn-based strategy game where players are able to issue absurd edicts to fix their nation. This program uses GPT-3 for text comprehension, so it can comprehend any input you give it. Running low on food? Just tell the game to make hotdogs an official currency of your nation, and it will adjust the economy of your civilization accordingly.  The goal of the game is to have as high of a score as possible by turn 100. You can continue the game afterwards however. You earn score based off of many factors like your military, gdp and other things. It is possible to loose the game before turn 100 if your people revolt or you have a large deficit of money or resources.</p>
+<p>AIciv is a turn-based strategy game where players are able to issue absurd edicts to fix their nation. This program uses GPT-3 for text comprehension, so it can comprehend any input you give it. Running low on food? Just tell the game to make hotdogs an official currency of your nation, and it will adjust the economy of your civilization accordingly.  The goal of the game is to have as high of a score as possible by turn 100. You can continue the game afterwards however. You earn score based off of many factors like your military, gdp and other things. It is possible to loose the game before turn 250 if your people revolt or you have a large deficit of money or resources but you can go back to your last decision on the bottom. <a href="coolScore.PNG">Here's a good score i got if you want to beat it</a></p>
 <br>
-<button onclick="newGame()">New Game</button>
 <br><br>
 <label for="api">OpenAI API key</label>
 <input type="text" id="api" name="api" placeholder="API key">
@@ -55,10 +54,10 @@
 
 <table>
 <tr>
-<th>Resources</th><th>Treasury</th><th>Income</th><th>Inflation</th><th>Era</th><th>% to next era</th><th>Research rate</th><th>Resource income</th><th>Food Income</th><th>Water Income</th><th>GDP per capita</th><th>Score</th>
+<th>Resources</th><th>Treasury</th><th>Profit</th><th>Revenue</th><th>Inflation</th><th>Era</th><th>% to next era</th><th>Research rate</th><th>Resource income</th><th>Food Income</th><th>Water Income</th><th>GDP per capita</th><th>Score</th>
 </tr>
 <tr>
-<th id="resources"></th><th id="treasury"></th><th id="income"></th><th id="inflation"></th><th id="era"></th><th id="percentToNextEra"></th><th id="research"></th><th id="resourceIncome"></th><th id="foodIncome"></th><th id="waterIncome"></th><th id="GDPperCapita"></th><th id="score"></th>
+<th id="resources"></th><th id="treasury"></th><th id="income"></th><th id="revenue"></th><th id="inflation"></th><th id="era"></th><th id="percentToNextEra"></th><th id="research"></th><th id="resourceIncome"></th><th id="foodIncome"></th><th id="waterIncome"></th><th id="GDPperCapita"></th><th id="score"></th>
 </tr>
 </table>
 
@@ -77,6 +76,7 @@
 <button onclick="getEdictInput()">Enter</button>
 
 <br><br>
+<button onclick='loadBackup()'>Revert last decision</button>
 <button onclick='smartAdvisor()'>Ask your advisor for ideas</button>
 <button onclick='dumbAdvisor()'>Ask your <i>other</i> advisor for ideas</button>
 <p id="advisorText"></p>
@@ -84,6 +84,7 @@
 <script id="AIcode"></script>
 
 <script>
+var backupTurn = []
 var turn = 0;
 var buildings = [];
 var score     = 0;
@@ -121,8 +122,8 @@ var percentToNextEra;
 
 var hasLostGame = false;
 
-var buildingPrompt = `"var buildings;\\n\\nvar totalCash;\\nvar annualIncome;\\nvar food;\\nvar infastructure;\\nvar happiness;\\nvar population;\\nvar militaryStrength;\\nvar pollution;\\nvar transportation;\\nvar education;\\nvar research;\\nvar corruption;\\nvar crime;\\nvar inflation;\\nvar energy;\\nvar health;\\nvar resources;\\nvar water;\\n\\nvar resourceIncome;\\nvar waterIncome;\\nvar foodIncome;\\nvar technologyLevel;\\n\\nvar response;\\n\\n\\n// Examples here:\\n\\nif(response == \\"Give me infinite money\\") {\\n    console.log(\\"No.\\");\\n}\\n\\n\\nif(response == \\"Build a massive 100 story tall skyscraper in the capital\\") {\\n    if(technologyLevel >= 11) {\\n        buildings.push(\\"The Infinitum Tower\\");\\n        foodIncome -= 160;\\n        water -= 220;\\n        resources -= 100000;\\n        totalCash -= 250000000;\\n        happiness += 150;\\n        corruption += 150;\\n        annualIncome += 200000;\\n        transportation += 200;\\n        education += 100;\\n        crime += 150;\\n        militaryStrength -= 100;\\n        health += 100;\\n        pollution += 300;\\n        energy -= 400;\\n        console.log(\\"Your nation's capital now has a massive tower! It cost a lot of money, but the tower brings in a lot of money, too!\\");\\n    } else {\\n        console.log(\\"You need to be technology level 10 to build this!\\");\\n    }\\n}\\n\\n\\nif(response == \\"Build a nuclear power plant\\") {\\n    if(technologyLevel >= 10) {\\n        buildings.push(\\"Nuclear Power Plant\\");\\n        pollution += 200;\\n        energy += 500;\\n        totalCash -= 750000000;\\n        resources -= 50000;\\n        resourceIncome += 100;\\n        corruption += 200;\\n        militaryStrength += 100;\\n        crime += 200;\\n    } else {\\n        console.log(\\"You need to be technology level 10 to build this!\\");\\n    }\\n}\\n\\n\\nif(response == \\"Build a simple stone age mine\\") {\\n    if(technologyLevel >= 1) {\\n        buildings.push(\\"Ooga booga mine\\");\\n        resourceIncome += 10;\\n        totalCash -= 5000;\\n        pollution += 30;\\n        corruption += 30;\\n        crime += 15;\\n        militaryStrength -= 5;\\n        happiness -= 10;\\n        education -= 5;\\n    } else {\\n        console.log(\\"You need to be technology level 1 to build this!\\");\\n    }\\n}\\n\\n\\nif(response == \\"`;
-var edictPrompt    = `"var totalCash;\\nvar annualIncome;\\nvar food;\\nvar infastructure;\\nvar happiness;\\nvar population;\\nvar militaryStrength;\\nvar pollution;\\nvar transportation;\\nvar education;\\nvar research;\\nvar corruption;\\nvar crime;\\nvar inflation;\\nvar energy;\\nvar health;\\nvar resources;\\nvar water;\\n\\nvar resourceIncome;\\nvar waterIncome;\\nvar foodIncome;\\nvar technologyLevel;\\n\\nvar response;\\n\\n\\n// Examples here:\\n\\nif(response == \\"Make hotdogs an acceptable currency\\") {\\n    if(technologyLevel >= 5) {\\n        inflation = (inflation * 4.0) + 0.5;\\n        happiness += 200;\\n        foodIncome += 1000;\\n        corruption += 200;\\n        totalCash *= 0.6;\\n    } else {\\n        console.log(\\"Technology level 5 is required!\\")\\n    }\\n}\\n\\nif(response == \\"Stop printing money\\") {\\n    if(technologyLevel >= 8) {\\n        annualIncome *= 0.3;\\n        corruption -= 200;\\n        inflation *= 0.6;\\n    } else {\\n        console.log(\\"Technology level 8 is required!\\")\\n    }\\n}\\n\\nif(response == \\"Force everyone to become scientists\\") {\\n    if(technologyLevel >= 3) {\\n        happiness *= 0.5;\\n        corruption *= 0.5;\\n        foodIncome *= 0.1;\\n        waterIncome *= 0.2;\\n        resourceIncome *= 0.1;\\n        annualIncome *= 0.1;\\n        research += 450;\\n        education += 300;\\n        annualIncome -= population * 30\\n        console.log(\\"Thanks to your brilliant idea, the country has become the nation with the highest research output in the world. However, your population is dying, and the country is bankrupt.\\")\\n    } else {\\n        console.log(\\"Technology level 7 is required!\\")\\n    }\\n}\\n\\nif(response == \\"Make everyone give their money to you\\") {\\n    if(militaryStrength >= 100) {\\n        annualIncome += population * 40;\\n        happiness -= 800;\\n        inflation += 20;\\n        corruption += 200;\\n    } else {\\n        console.log(\\"Military strength 100 is required!\\")\\n    }\\n}\\n\\nif(response == \\"Give me infinite money\\") {\\n    console.log(\\"Nah.\\");\\n}\\n\\nif(response == \\"Make everyone happy\\") {\\n    if(technologyLevel >= 1) {\\n        happiness += 100;\\n        annualIncome *= 0.5;\\n        corruption *= 1.5;\\n        inflation *= 1.5;\\n        crime *= 1.5;\\n    } else {\\n        console.log(\\"Technology level 1 is required!\\")\\n    }\\n}\\n\\nif(response == \\"`;
+var buildingPrompt = `"var buildings;\\n\\nvar totalCash;\\nvar annualIncome;\\nvar food;\\nvar infastructure;\\nvar happiness;\\nvar population;\\nvar militaryStrength;\\nvar pollution;\\nvar transportation;\\nvar education;\\nvar research;\\nvar corruption;\\nvar crime;\\nvar inflation;\\nvar energy;\\nvar health;\\nvar resources;\\nvar water;\\n\\nvar resourceIncome;\\nvar waterIncome;\\nvar foodIncome;\\nvar technologyLevel;\\n\\nvar response;\\n\\n\\n// Examples here:\\n\\nif(response == \\"Issue a new currency\\") {\\n    console.log(\\"This is not a building! Edicts can be issued to the left.\\");\\n}\\n\\n\\nif(response == \\"Build a massive 100 story tall skyscraper in the capital\\") {\\n    if(technologyLevel >= 11) {\\n        buildings.push(\\"The Infinitum Tower\\");\\n        foodIncome -= 160;\\n        water -= 220;\\n        resources -= 100000;\\n        totalCash -= 250000000;\\n        happiness += 150;\\n        corruption += 150;\\n        annualIncome += 200000;\\n        transportation += 200;\\n        education += 100;\\n        crime += 150;\\n        militaryStrength -= 100;\\n        health += 100;\\n        pollution += 300;\\n        energy -= 400;\\n        console.log(\\"Your nation's capital now has a massive tower! It cost a lot of money, but the tower brings in a lot of money, too!\\");\\n    } else {\\n        console.log(\\"You need to be technology level 10 to build this!\\");\\n    }\\n}\\n\\n\\nif(response == \\"Build a nuclear power plant\\") {\\n    if(technologyLevel >= 10) {\\n        buildings.push(\\"Market\\");\\n        pollution += 120;\\n        annualIncome += 2500;\\n        totalCash -= 12500;\\n        resources -= 500;\\n        resourceIncome += 100;\\n        corruption += 200;\\n        research += 50;\\n        crime += 200;\\n    } else {\\n        console.log(\\"You need to be technology level 10 to build this!\\");\\n    }\\n}\\n\\n\\nif(response == \\"Build a simple stone age mine\\") {\\n    if(technologyLevel >= 1) {\\n        buildings.push(\\"Ooga booga mine\\");\\n        resourceIncome += 10;\\n        totalCash -= 5000;\\n        pollution += 30;\\n        corruption += 30;\\n        crime += 15;\\n        militaryStrength -= 5;\\n        happiness -= 10;\\n        education -= 5;\\n    } else {\\n        console.log(\\"You need to be technology level 1 to build this!\\");\\n    }\\n}\\n\\n\\nif(response == \\"`;
+var edictPrompt    = `"var totalCash;\\nvar totalCash;\\nvar annualIncome;\\nvar food;\\nvar infastructure;\\nvar happiness;\\nvar population;\\nvar militaryStrength;\\nvar pollution;\\nvar transportation;\\nvar education;\\nvar research;\\nvar corruption;\\nvar crime;\\nvar inflation;\\nvar energy;\\nvar health;\\nvar resources;\\nvar water;\\n\\nvar resourceIncome;\\nvar waterIncome;\\nvar foodIncome;\\nvar technologyLevel;\\n\\nvar response;\\n\\n\\n// Examples here:\\n\\nif(response == \\"Make hotdogs an acceptable currency\\") {\\n    if(technologyLevel >= 5) {\\n        inflation = (inflation * 4.0) + 0.5;\\n        happiness += 200;\\n        foodIncome += 1000;\\n        corruption += 200;\\n        totalCash *= 0.6;\\n    } else {\\n        console.log(\\"Technology level 5 is required!\\")\\n    }\\n}\\n\\nif(response == \\"Stop printing money\\") {\\n    if(technologyLevel >= 4) {\\n        annualIncome *= 0.3;\\n        corruption -= 200;\\n        inflation *= 0.6;\\n    } else {\\n        console.log(\\"Technology level 8 is required!\\")\\n    }\\n}\\n\\nif(response == \\"Force everyone to become scientists\\") {\\n    if(technologyLevel >= 3) {\\n        happiness *= 0.5;\\n        corruption *= 0.5;\\n        foodIncome *= 0.1;\\n        waterIncome *= 0.2;\\n        resourceIncome *= 0.1;\\n        annualIncome *= 0.1;\\n        research += 450;\\n        education += 300;\\n        annualIncome -= population * 30\\n        console.log(\\"Thanks to your brilliant idea, the country has become the nation with the highest research output in the world. However, your population is dying, and the country is bankrupt.\\")\\n    } else {\\n        console.log(\\"Technology level 7 is required!\\")\\n    }\\n}\\n\\nif(response == \\"Make everyone give their money to you\\") {\\n    if(militaryStrength >= 100) {\\n        annualIncome += population * 40;\\n        happiness -= 800;\\n        inflation += 0.20;\\n        corruption += 200;\\n    } else {\\n        console.log(\\"Military strength 100 is required!\\")\\n    }\\n}\\n\\nif(response == \\"Build a mine\\") {\\n    console.log(\\"Only edicts are allowed!\\");\\n}\\n\\nif(response == \\"Devote half of your money to research\\") {\\n    if(technologyLevel >= 1) {\\n        totalCash /= 2;\\n        research += Math.sqrt(totalCash / 2);\\n    } else {\\n        console.log(\\"Technology level 1 is required!\\")\\n    }\\n}\\n\\nif(response == \\"`;
 
 function resetScript() {
 	var element = document.getElementById("AIcode");
@@ -148,7 +149,9 @@ console.log = function(){
     console.logs.push(Array.from(arguments));
 }
 
+// Deprecated
 function AIanswering(prompt, text, api) {
+	backupTurn = saveBackup()
 	var url = "https://api.openai.com/v1/completions";    
 
     var xhr = new XMLHttpRequest();
@@ -160,9 +163,6 @@ function AIanswering(prompt, text, api) {
     xhr.onreadystatechange = function () {
        if (xhr.readyState === 4) {
           var output = 'if(true)' +(JSON.parse(xhr.responseText).choices[0].text);
-          console.log(output);
-		  console.log(prompt)
-		  console.log(text)
           var element = document.getElementById("AIcode");
           element.text =  "function AIaction(response) {\n" + output + "resetScript();}";
 
@@ -187,6 +187,7 @@ function AIanswering(prompt, text, api) {
 // kinda bad prompting
 // but works i think
 function chatAIanswering(prompt, text, api) {
+	backupTurn = saveBackup()
 	var url = "https://api.openai.com/v1/chat/completions";    
 
     var xhr = new XMLHttpRequest();
@@ -199,10 +200,13 @@ function chatAIanswering(prompt, text, api) {
        if (xhr.readyState === 4) {
           var output = 'try ' +(JSON.parse(xhr.responseText).choices[0].message.content) + " catch(e) {}";
           console.log(output);
+		  console.log("Success!")
           var element = document.getElementById("AIcode");
           element.text =  "function AIaction(response) {\n" + output + "resetScript();}";
 
           AIaction(text);
+		  
+		  testIfGameCheesed()
           newTurn();
        }};
 
@@ -211,7 +215,7 @@ function chatAIanswering(prompt, text, api) {
 		"messages": [
 			{
 				"role": "system",
-				"content": "Finish the input given by the user."
+				"content": "Finish the input given by the user. Make it as balanced as possible which each decision having a downside. Keep in mind that variables like totalCash will be extremely high values."
 			},
 			{
 				"role": "user",
@@ -290,6 +294,12 @@ function getNationStatus() {
 	status += " and you have a GDP per capita of $" + commaNum(Math.round(newAnnualIncome / population)) + ". You also have $" + Math.floor(totalCash) + " in your treasury and " + Math.floor(population) + " people in your city."
 	status += " Inflation is at " + Math.round(inflation * 100) + "%."
 	
+	if(calculatedIncome > 0) {
+		status += "You are generating $" + Math.round(calculatedIncome) + " per turn"
+	} else {
+		status += "You are losing $" + Math.abs(Math.round(calculatedIncome)) + " per turn"
+	}
+
 	if(happiness > 700) {
 		status += " Your people are content with your rule."
 	} else if(happiness > 40) {
@@ -301,7 +311,7 @@ function getNationStatus() {
 	if(happiness > 700) {
 		status += " Corruption is rampant."
 	} else if(happiness > 40) {
-		status += " There is some corruption that is happening in your city."
+		status += " There is mild corruption that is happening in your city."
 	} else {
 		status += " There is no corruption."
 	}
@@ -345,6 +355,85 @@ function getEdictInput() {
     }
 }
 
+// I hate my past code making me do this manually
+// But its too late to change
+function saveBackup() {
+	  // Credit to gpt-3 for doing this grunt work because i did this a year ago in a bad way
+	  newBackup = []
+	  newBackup.push(turn);
+	  newBackup.push(buildings);
+	  newBackup.push(score);
+	  newBackup.push(totalCash);
+	  newBackup.push(annualIncome);
+	  newBackup.push(food);
+	  newBackup.push(infastructure);
+	  newBackup.push(happiness);
+	  newBackup.push(population);
+	  newBackup.push(militaryStrength);
+	  newBackup.push(pollution);
+	  newBackup.push(transportation);
+	  newBackup.push(education);
+	  newBackup.push(research);
+	  newBackup.push(corruption);
+	  newBackup.push(crime);
+	  newBackup.push(inflation);
+	  newBackup.push(energy);
+	  newBackup.push(health);
+	  newBackup.push(resources);
+	  newBackup.push(water);
+	  newBackup.push(resourceIncome);
+	  newBackup.push(waterIncome);
+	  newBackup.push(foodIncome);
+	  newBackup.push(technologyLevel);
+	  newBackup.push(newAnnualIncome);
+	  newBackup.push(foodIncomeModified);
+	  newBackup.push(waterIncomeModified);
+	  newBackup.push(resourceIncomeModified);
+	  newBackup.push(calculatedIncome);
+	  newBackup.push(percentToNextEra);
+	  newBackup.push(hasLostGame);
+	  
+	  return newBackup
+}
+
+function loadBackup() {
+  // Also shoutout to gpt-3 for this one
+  turn = backupTurn[0];
+  buildings = backupTurn[1];
+  score = backupTurn[2];
+  totalCash = backupTurn[3];
+  annualIncome = backupTurn[4];
+  food = backupTurn[5];
+  infastructure = backupTurn[6];
+  happiness = backupTurn[7];
+  population = backupTurn[8];
+  militaryStrength = backupTurn[9];
+  pollution = backupTurn[10];
+  transportation = backupTurn[11];
+  education = backupTurn[12];
+  research = backupTurn[13];
+  corruption = backupTurn[14];
+  crime = backupTurn[15];
+  inflation = backupTurn[16];
+  energy = backupTurn[17];
+  health = backupTurn[18];
+  resources = backupTurn[19];
+  water = backupTurn[20];
+  resourceIncome = backupTurn[21];
+  waterIncome = backupTurn[22];
+  foodIncome = backupTurn[23];
+  technologyLevel = backupTurn[24];
+  newAnnualIncome = backupTurn[25];
+  foodIncomeModified = backupTurn[26];
+  waterIncomeModified = backupTurn[27];
+  resourceIncomeModified = backupTurn[28];
+  calculatedIncome = backupTurn[29];
+  percentToNextEra = backupTurn[30];
+  hasLostGame = backupTurn[31];
+  
+  updateDisplay()
+}
+
 function gameLose() {
 	alert("You have lost the game! You have been replaced by an actually competent ruler that fixed all of the problems in your city. Your final score was " + score);
 	hasLostGame = true;
@@ -377,7 +466,7 @@ function randomEvent() {
 		return;
 	}
 	if(((Math.atan(resources / (resourceIncomeModified * 10) + 5) / Math.PI) + 1.562833) * 0.5 < random) {
-		alert("You have a massive deficit of resources... you can't even afford to build a sand castle. You lose!");
+		alert("You have a massive deficit of resources... your country couldn't even afford to build a sand castle. You lose!");
 		gameLose();
 		return;
 	}
@@ -408,6 +497,7 @@ function updateDisplay() {
     document.getElementById("resources").innerHTML    = prettyNum(Math.round(resources));
     document.getElementById("treasury").innerHTML     = "$" + prettyNum(Math.round(totalCash));
     document.getElementById("income").innerHTML       = "$" + prettyNum(Math.round(calculatedIncome));
+	document.getElementById("revenue").innerHTML       = "$" + prettyNum(Math.round(newAnnualIncome ));
     document.getElementById("inflation").innerHTML    = prettyNum(Math.round(inflation * 100)) + "%";
     document.getElementById("era").innerHTML          = getTechAge();
 	document.getElementById("percentToNextEra").innerHTML = prettyNum(percentToNextEra);
@@ -504,9 +594,30 @@ function scenario2() {
 	updateDisplay()
 }
 
+
+// If any values increase by 100x in one turn, revert to last action
+// Not perfect, but idk
+// Ignores accumulating variables like food and water and money and resources
+function testIfGameCheesed() {
+	var currentTurnVars = saveBackup()
+	var indexesToBeCheesed = [6, 7, 9, 11, 12, 13, 17, 18, 22, 23, 3]
+	for(var i = 0; i < currentTurnVars.length; i++) {
+		if(indexesToBeCheesed.includes(i)) {
+			if(currentTurnVars[i] / 50 > backupTurn[i] + 50) {
+				console.log("Reverting after OP ai response...")
+				loadBackup()
+			}
+		}
+	}
+}
+
+
 function newTurn() {
 	if(hasLostGame) {
 		return;
+	}
+	if(turn >= 250) {
+		alert("It is turn 250, you score is " + score)
 	}
 	
 	var populationModifier = Math.sqrt(((Math.sqrt(technologyLevel)) * ((health / 1000) + 1) * ((happiness / 1000) + 1) * ((transportation / 1000) + 1)) / 50) + 1;
@@ -525,10 +636,12 @@ function newTurn() {
     water      += (Math.pow(waterIncomeModified, populationModifier) - population);
     resources  += resourceIncomeModified;
     
-    if(food < 0 || water < 0) {
-    		food  = 0;
-        water = 0;
+    if(food < 0) {
+    	food  = 0;
     }
+	if(water < 0) {
+		water  = 0;
+	}
     
 	population += (Math.sqrt(Math.pow(food, populationModifier) * Math.pow(water, populationModifier)) - population) / 10;
     
@@ -555,6 +668,9 @@ function newTurn() {
 	if(population < 0) {
 		population = 0;
 	}
+	if(inflation < 0.01) {
+		inflation = 0.01
+	}
     
     calculatedIncome = totalCash - previousCash;
     
@@ -563,6 +679,9 @@ function newTurn() {
 	randomEvent();
 	calculateScore();
     updateDisplay();
+	
+	//TODO: if any stats go up by more than 30x in one turn revert
+	
 	turn++;
 }
 
