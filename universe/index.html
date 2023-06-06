@@ -2,41 +2,59 @@
 <link rel="stylesheet" href="../style.css">
 
 <html lang="en">
+
 <head>
-	<title>UNIVERSE-JS</title>
-	<!-- Include -->
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-	<meta name="description" content="A planet physics simulator in your browser">
-	
-	<link rel="icon" href="../icon.png">
-	<object type="text/html" data="../banner.html" width=100% style="height: 200px"></object>
+    <title>UNIVERSE-JS</title>
+    <!-- Include -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </meta>
+    <meta name="description" content="A planet physics simulator in your browser">
+
+    <link rel="icon" href="../icon.png">
+    <object type="text/html" data="../banner.html" width=100% style="height: 200px"></object>
 </head>
-<body>
-
-<div class="main_layer">
-<div class="nav">
-	<!-- Include the nav table -->
-	<object type="text/html" data="../nav.html" height=100%></object>
-</div>
-
-<div class="page_dis" id="parent">
-<h1>UNIVERSE-JS</h1>
-
-<p>This is a mostly complete javascript port of my TI-84 plus CE program <a href="https://github.com/hidude562/UNIVERSE-84">UNIVERSE-84</a>. In this, you can simulate orbital mechinics, <i>somewhat</i> accuracte temperature predictions, and planetary collisions. The controls for your camera are just mouse controls. You can change the selected item on the side using the up/down arrow keys and change it with enter. Change your selected planet by using either the right/left arrow keys or you can just click on it. You can speed up time using . and slow it down using , The distance in the top left corner is the entire width of your screen. The time-warp per frame can also be seen in the top left</p>
-
-
-
-
-
-
-
-
-
-
-
 
 <body>
+
+    <div class="main_layer">
+        <div class="nav">
+            <!-- Include the nav table -->
+            <object type="text/html" data="../nav.html" height=100%></object>
+        </div>
+
+        <div class="page_dis" id="parent">
+            <h1>UNIVERSE-JS</h1>
+
+            <p>This is a mostly complete javascript port of my TI-84 plus CE program <a
+                    href="https://github.com/hidude562/UNIVERSE-84">UNIVERSE-84</a>. In this, you can simulate orbital
+                mechinics, <i>somewhat</i> accuracte temperature predictions, and planetary collisions. The controls for
+                your camera are just mouse controls. You can change the selected item on the side using the up/down
+                arrow keys and change it with enter. Change your selected planet by using either the right/left arrow
+                keys or you can just click on it. You can speed up time using . and slow it down using , The distance in
+                the top left corner is the entire width of your screen. The time-warp per frame can also be seen in the
+                top left</p>
+
+                <script>
+                    var keys = {};
+                        window.addEventListener("keydown",
+                            function (e) {
+                                keys[e.code] = true;
+                                switch (e.code) {
+                                    case "ArrowUp": case "ArrowDown": case "ArrowLeft": case "ArrowRight":
+                                    case "Space": e.preventDefault(); break;
+                                    default: break; // do not block other keys
+                                }
+                            },
+                            false);
+                        window.addEventListener('keyup',
+                            function (e) {
+                                keys[e.code] = false;
+                            },
+                            false);
+                </script>
+
+<body style="margin: 0; padding: 0;">
 	<canvas id="canvas" width="480" height="320" style="margin: 0; padding: 0; background-color: black;"></canvas>
 	<img id="dustyPlanet" src="./assets/dustyPlanet.png" style="display: none;">
 	<img id="verySmallwater" src="./assets/verySmallwater.png" style="display: none;">
@@ -59,8 +77,16 @@
 	<img id="atmosphereDenseWarm" src="./assets/atmosphereDenseWarm.png" style="display: none;">
 </body>
 
+<div id="inputFrame" style="left: 45%; height: 5%; width: 10%; top: 5%; position: absolute;">
+    <body style="background-color: white;">
+    <label for="value">Value: </label><input type="text" id="inputValue"></input>
+    <button onclick="getInput()">Submit</button>
+</div>
 
 <script>
+//set the input frame as invisible at start
+document.getElementById("inputFrame").style.display = "none";
+
 // Define some sprites
 var dustyPlanet = document.getElementById("dustyPlanet");
 var verySmallwater = document.getElementById("verySmallwater");
@@ -92,7 +118,7 @@ var cursorY = 0;
 var normalFontSize = 8;
 var fontSize = 16;
 var mouseX = 0;
-var mouseY = 0; 
+var mouseY = 0;
 
 var kb_2nd = false;
 var kb_Alpha = false;
@@ -292,13 +318,17 @@ function getRandomName() {
 // Not needed as only for inputing
 //function getNumOnKeyboard(bool prevNum)
 
-function getInput(formerValue) {
+function setInputFieldVisible() {
 	// TODO: input prompt
-	var val = prompt("Enter a new value", formerValue)
-	if(val == null) {
-		return 0
-	}
-	return val
+	document.getElementById("inputFrame").style.display = "block";
+}
+
+var val;
+
+function getInput() {
+    val = document.getElementById("inputValue").value;
+    document.getElementById("inputFrame").style.display = "none";
+    setSelectedIndexValueByUserInput();
 }
 
 function gfx_PrintInt64_t(num, _hereForConsistancyDoesntDoAnything) {
@@ -369,7 +399,7 @@ function newDebris(i, otherObj, percentOfPrevBody) {
     bodies[newIndex].velocityY = (bodies[i].velocityY);//(bodies[i].velocityY / 3 * 128 / randomDir);
 	var deltaVX = (bodies[otherObj].velocityX - bodies[i].velocityX);
 	var deltaVY = (bodies[otherObj].velocityY - bodies[i].velocityY);
-	var deltaV  = Math.sqrt(deltaVX * deltaVX + deltaVY * deltaVY)
+	var deltaV  = Math.sqrt(deltaVX * deltaVX + deltaVY * deltaVY);
 	
 	bodies[newIndex].velocityX += (deltaVX) / 1.3 + (Math.cos(randomDir1)) * deltaV / 1.1 * (1 + (Math.random() - 0.5) / 4);
 	bodies[newIndex].velocityY += (deltaVY) / 1.3 + (Math.sin(randomDir1)) * deltaV / 1.1 * (1 + (Math.random() - 0.5) / 4);
@@ -383,7 +413,7 @@ function newDebris(i, otherObj, percentOfPrevBody) {
     bodies[newIndex].x += ((deltaX) / distanceToOther) * (bodies[newIndex].radius + bodies[i].radius) / 1;
     bodies[newIndex].y += ((deltaY) / distanceToOther) * (bodies[newIndex].radius + bodies[i].radius) / 1;
 	bodies[newIndex].x += bodies[newIndex].velocityX / 5;
-	bodies[newIndex].y += bodies[newIndex].velocityY / 5
+	bodies[newIndex].y += bodies[newIndex].velocityY / 5;
 }
 
 // Precondition: obj1 is larger (in mass) than obj2
@@ -502,7 +532,7 @@ function physics(i) {
     }
 
     bodies[i].coreTemperature = estimatedCoreTemp(bodies[i].mass);
-    bodies[i].surfaceStabilizeTemperature = (bodies[i].surfaceStabilizeTemperature * (1000 + bodies[i].atmosphereDensity / 300)) / 1000;
+    bodies[i].surffaceStabilizeTemperature = (bodies[i].surfaceStabilizeTemperature * (1000 + bodies[i].atmosphereDensity / 300)) / 1000;
 }
 
 function simplePhysics(i) {
@@ -678,40 +708,40 @@ function drawPreviewPlanet() {
 function setSelectedIndexValueByUserInput() {
     var prevVal = 0;
     if(selectedIndex == 0) {//name
-		prevVal = bodies[selectedPlanet].name;
-        bodies[selectedPlanet].name = getInput(name);
+		//prevVal = bodies[selectedPlanet].name;
+        bodies[selectedPlanet].name = val;
     }
     else if(selectedIndex == 1) {//radius
         prevVal = bodies[selectedPlanet].radius;
-        bodies[selectedPlanet].radius = getInput(prevVal);
+        bodies[selectedPlanet].radius = val;
     }
     else if(selectedIndex == 2) {//surfaceTemp
         prevVal = bodies[selectedPlanet].surfaceTemperature;
-        bodies[selectedPlanet].surfaceTemperature = getInput(prevVal);
+        bodies[selectedPlanet].surfaceTemperature = val;
     }
     else if(selectedIndex == 3) {//surfaceTempF
         prevVal = (bodies[selectedPlanet].surfaceTemperature - 273) * 9 / 5 + 32;
-        bodies[selectedPlanet].surfaceTemperature = (getInput(prevVal) - 32) * 5 / 9 + 273;
+        bodies[selectedPlanet].surfaceTemperature = (val - 32) * 5 / 9 + 273;
     }
     else if(selectedIndex == 4) {//Vx
         prevVal = bodies[selectedPlanet].velocityX;
-        bodies[selectedPlanet].velocityX = Math.round(getInput(prevVal));
+        bodies[selectedPlanet].velocityX = Math.round(val);
     }
     else if(selectedIndex == 5) {//Vy
         prevVal = bodies[selectedPlanet].velocityY;
-        bodies[selectedPlanet].velocityY = Math.round(getInput(prevVal));
+        bodies[selectedPlanet].velocityY = Math.round(val);
     }
     else if(selectedIndex == 6) {//mass
         prevVal = bodies[selectedPlanet].mass;
-        bodies[selectedPlanet].mass = getInput(prevVal);
+        bodies[selectedPlanet].mass = val;
     }
     else if(selectedIndex == 7) {//atmosphree
         prevVal = bodies[selectedPlanet].atmosphereDensity;
-        bodies[selectedPlanet].atmosphereDensity = getInput(prevVal / 1000) * 1000;
+        bodies[selectedPlanet].atmosphereDensity = (val / 1000) * 1000;
     }
     else if(selectedIndex == 8) {//water
         prevVal = bodies[selectedPlanet].waterAmount;
-        bodies[selectedPlanet].waterAmount = getInput(prevVal);
+        bodies[selectedPlanet].waterAmount = val;
     }
     else if(selectedIndex == 10) {// New Moon
         setAdvancedPlanet(num_bodies, bodies[selectedPlanet].x, bodies[selectedPlanet].y + bodies[selectedPlanet].radius * 10,bodies[selectedPlanet].velocityX + fastestSqrt64(bodies[selectedPlanet].mass) * 25, bodies[selectedPlanet].velocityY, 13891, 2106, getRandomName(), 1090, 12, 2000, false);
@@ -722,26 +752,13 @@ function setSelectedIndexValueByUserInput() {
     }
 }
 
-
-// TODO: Migrate this to bottom of script
-function controls() {
-    if (kb_2nd) {
-        camZoom -= (camZoom / 5);
-		kb_Scan();
-    }
-    if (kb_Alpha) {
-        camZoom += (camZoom / 5);
-		kb_Scan();
-    }
-}
-
 function draw_planet(i, mouseClick) {
     gfx_SetColor(bodies[i].color);
     var drawSize = 10;
     if(correctSizedBodies) {
         drawSize = bodies[i].radius * SCREEN_X / camZoom;
         if(drawSize < 2) {
-            drawSize =1;
+            drawSize = 1;
         }
     }
     //gfx_FillCircle(150, 150, drawSize);
@@ -900,7 +917,7 @@ function step()
 
 main()
 const interval = setInterval(function() {
-	canvas.width = window.innerWidth - 400;
+	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 	SCREEN_X = canvas.width;
 	SCREEN_Y = canvas.height - 10;
@@ -946,6 +963,8 @@ onclick = function(e) {
 	}
 }
 
+var inputFieldVisible = false;
+
 onkeydown = function(e){
 	switch(e.key) {
 		case "ArrowRight":
@@ -962,56 +981,89 @@ onkeydown = function(e){
 			}
 			break;
 		case "ArrowUp":
-			selectedIndex = (selectedIndex - 1);
+			changeIndexUp();
 			break;
 		case "ArrowDown":
-			selectedIndex = (selectedIndex + 1);
-			break;
+			changeIndexDown();
+            break;
+        case "w":
+            mouseDown = true;
+            break;
+        case "s":
+            mouseDown = false;
+            break;
+        case "x":
+            changeIndexUp();
+            break;
+        case "c":
+            changeIndexDown();
+            break;
 		case ",":
 			timeStep /= 2;
 			break;
 		case ".":
 			if(timeStep == 0) {
 				timeStep = 1;
-			}
-			timeStep *= 2;
+			}else if (timeStep >= 1048576){
+                timeStep = 1;
+            }else{
+                timeStep *= 2;
+            }
 			break;
 		case " ":
 			if(timeStep == 0) {
-				timeStep = 2;
+				timeStep = 1;
 			} else {
 				timeStep = 0;
 			}
 			break;
 		case "Enter":
-			setSelectedIndexValueByUserInput()
-			timeStep = 0;
+			if (inputFieldVisible) {
+                getInput();
+                inputFieldVisible = false;
+            }else{
+                setInputFieldVisible();
+                inputFieldVisible = true;
+            }
+			if (timeStep != 0){
+                timeStep = 0;
+            }
 			break;
 		default:
 			console.log(e.key);
 	}
 }
 
+    function controls() {
+        if (kb_2nd) {
+            camZoom -= (camZoom / 5);
+            kb_Scan();
+        }
+        if (kb_Alpha) {
+            camZoom += (camZoom / 5);
+            kb_Scan();
+        }
+    }
+
+    function changeIndexUp(){
+        if (selectedIndex <= 0) {
+            selectedIndex = 11;
+        } else {
+            selectedIndex -= 1;
+        }
+    }
+
+    function changeIndexDown(){
+        if (selectedIndex >= 11) {
+            selectedIndex = 0;
+        } else {
+            selectedIndex += 1;
+        }
+    }
+
+    function updateTimer() {
+        drawPlanets();
+    }
+    setInterval(updateTimer, 1000); //update planets every second, maybe tone down seeing as every second is a bit excessive???
+
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-</div>
-
-<object type="text/html" data="../footer.html" width=100%></object>
-</body>
-</html>
