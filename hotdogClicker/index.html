@@ -4,7 +4,7 @@
 
 <html>
 <head>
-	<title>nathanmills.dev - hotdogClicker</title>
+	<title>nathanmills.dev - Hotdog Clicker Classic</title>
 	<!-- Include -->
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=0.5"></meta>
@@ -739,9 +739,6 @@ function resetUpgrades() {
     document.getElementById("amount").value = "0 Hotdogs";
     document.getElementById("hps").value = "0 Hotdogs per second";
     document.getElementById("hpc").value = "1 Hotdog per click";
-    document.getElementById("amount1").value = "0 Hotdogs";
-    document.getElementById("hps1").value = "0 Hotdogs per second";
-    document.getElementById("hpc1").value = "1 Hotdog per click";
     document.title = hotdogs + " hotdogs";
   }
 
@@ -810,9 +807,6 @@ function resetUpgrades() {
     document.getElementById("amount").value = toDisplay(Math.round(hotdogs)) + " Hotdogs";
     document.getElementById("hps").value = toDisplay(Math.round(hps)) + " Hotdogs per second";
     document.getElementById("hpc").value = toDisplay(Math.round(hpc)) + " Hotdogs per click";
-    document.getElementById("amount1").value = toDisplay(Math.round(hotdogs)) + " hotdogs";
-    document.getElementById("hps1").value = toDisplay(Math.round(hps)) + " Hotdogs per second";
-    document.getElementById("hpc1").value = toDisplay(Math.round(hpc)) + " Hotdogs per click";
     
     
     //owns amount, costs amount for buildings
@@ -872,7 +866,7 @@ function resetUpgrades() {
  
   <!--Title, top section-->
   <title>Hotdog Clicker</title>
-    <h1><font color="red">Hotdog Clicker</font></h1> 
+    <h1><font color="red">Hotdog Clicker Classic</font></h1> 
       <title>0 hotdogs</title>
 
 
@@ -880,15 +874,7 @@ function resetUpgrades() {
       <input type="text" id="amount" disabled style="text-align: center;" />
       <input type="text" id="hps" disabled style="text-align: center;" />
       <input type="text" id="hpc" disabled style="text-align: center;" />
-
-      
-      <!--hotdog amount. hps, hpc, follows along on screen compared to the rest-->
-      <input type="text" id="amount1" disabled style="text-align: center;" />
-      <input type="text" id="hps1" disabled style="text-align: center;" />
-      <input type="text" id="hpc1" disabled style="text-align: center;" />
-      
-      
-      
+            
       <!--random line breaking to make it look more visually appealing-->
       <br>
       <br>
@@ -907,15 +893,7 @@ function resetUpgrades() {
       <label for="file">Select a save file: </label>
       <input type="file" name="file" id="file" accept=".hotdog" />
       <button onclick="load()" name="submit">Load Save</button>
-     
-
-      <!--Nav Table-->
-      <nav class = "nav">
-          <li class="nav"><a href="new.html">What's New</a></li>
-          <li class="nav"><a href="credits.html">Credits</a></li>
-      </nav>
-
-
+    
     <!--Hotdog Button to Click-->
     <button id="btn" style="calc(100% - 10px)">
       Click the Hotdog

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="../style.css">
+
+<html lang="en">
+
+<head>
+    <title>nathanmills.dev - GlobalDVD</title>
+    <!-- Include -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.5px">
+    </meta>
+    <meta name="description"
+        content="Endlessly experience a globally synchronized DVD screensaver here on nathanmills.dev">
+
+    <link rel="icon" href="../icon.png">
+
+    <object type="text/html" data="../banner.html" width=100% style="height: 200px"></object>
+</head>
+
+<body>
+    <div class="main_layer">
+        <div class="nav">
+            <!-- Include the nav table -->
+            <object type="text/html" data="../nav.html" height=100%></object>
+        </div>
+
+        <div class="page_dis">
+            <h1>Fake Cointoss</h1>
+            <h3 id="result">Null</h3>
+            <button onclick="tossCoin()">Retoss Coin</button>
+            <script>
+                function tossCoin(){
+                    let result = Math.floor(Math.random() * 2);
+                    if(result == 1)
+                        document.getElementById("result").textContent = "Heads";
+                    else
+                        document.getElementById("result").textContent = "Tails";
+                }
+                tossCoin();
+            </script>
+        </div>
