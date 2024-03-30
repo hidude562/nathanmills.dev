@@ -37,6 +37,120 @@
 
 <button id="play-chord">Play Chord</button>
 
+
+<canvas id="sheetMusic" width="600" height="400"></canvas>
+
+<script>
+    const canvas = document.getElementById('sheetMusic');
+    const ctx = canvas.getContext('2d');
+
+    // Load the treble clef image
+    const trebleClef = new Image();
+	const bassClef = new Image();
+	
+	const quarterNote = new Image();
+	
+	const flatSign = new Image();
+	const sharpSign = new Image();
+	
+	const lineSpacing = 8;
+    const topMargin = 64;
+    const partSpacing = 64
+    const numPartLines = 2;
+    const barSpacing = 120;
+	
+    trebleClef.src = 'treble.png';
+	bassClef.src = 'bass.png';
+	quarterNote.src = 'quarter.png';
+	flatSign.src = 'flat.png';
+	sharpSign.src = 'sharp.png';
+	
+	
+	
+    function drawSheetMusic(piece, beat, key) {
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+	  
+	  const beatToXOffset = beat / 4 * barSpacing
+	  
+	  
+	function drawMidiNote(note, beatNum, partNum, useSharps) {
+		
+		var asCMajor = note
+		var noteBaseKey = note%12
+		var CmajorKeys = [0, 2, 4, 5, 7, 9, 11]
+		var usingAccidental = false;
+		
+		if(!CmajorKeys.includes(noteBaseKey)) {
+			usingAccidental = true
+			if(useSharps) {
+				asCMajor-=1
+			} else {
+				asCMajor+=1
+			}
+		}
+		
+		var octave = Math.floor(note/12) - 5
+		var noteIndexOnStaff = CmajorKeys.indexOf(asCMajor%12)
+		var relativeStaffY = -((noteIndexOnStaff-3) * lineSpacing/2 + (octave*7*lineSpacing/2))
+		
+		
+		var y = relativeStaffY + (partNum * partSpacing) + topMargin
+		var x = beatNum * barSpacing / 4  - beatToXOffset
+		ctx.drawImage(quarterNote, x, y);
+		if(usingAccidental) {
+			if(useSharps) {
+				ctx.drawImage(sharpSign, x, y);
+			} else {
+				ctx.drawImage(flatSign, x, y);
+			}
+		}
+	}
+	  
+
+      // Draw the horizontal lines
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 1;
+      
+      for (let i = 0; i < 5; i++) {
+		for(let j = 0; j < numPartLines; j++) {
+			const y = topMargin + i * lineSpacing;
+			ctx.beginPath();
+			ctx.moveTo(0, y + (j*partSpacing));
+			ctx.lineTo(canvas.width, y + (j*partSpacing));
+			ctx.stroke();
+		}
+      }
+	  
+	  // Actual content
+	  for (let i = 0; i < piece.phraseLength; i += 1) {
+		for(let j = 0; j < numPartLines; j++) {
+			ctx.beginPath();
+			ctx.moveTo(i*barSpacing - beatToXOffset, topMargin + (j*partSpacing));
+			ctx.lineTo(i*barSpacing - beatToXOffset, topMargin + 4 * lineSpacing + (j*partSpacing));
+			ctx.stroke();
+		}
+		
+		ctx.font = '16px san-serif';
+		for(let chord of piece.measures[i].chords)
+			ctx.fillText(chord.chord, i*barSpacing - beatToXOffset, topMargin-16);
+		
+		useSharps = piece.measures[i].chords[0].key >= 0
+		for(let soloNote of piece.measures[i].soloNotes) {
+			drawMidiNote(soloNote.note, soloNote.beat + i*4, 0, useSharps)
+		}
+      }
+
+      // Draw the treble clef
+      const trebleClefY = topMargin - 16;
+	  const bassClefY = topMargin - 16 + partSpacing;
+	  const clefsX = 0
+	  
+      ctx.drawImage(trebleClef, clefsX, trebleClefY);
+	  ctx.drawImage(bassClef, clefsX, bassClefY);
+    }
+</script>
+
 <script>
 
 var sleepSetTimeout_ctrl;
@@ -138,7 +252,7 @@ function sleep(ms) {
             bass = instrument;
         });
 		
-		Soundfont.instrument(audioContext, 'trumpet', { soundfont: 'FluidR3_GM', gain: 1.5 }).then(function (instrument) {
+		Soundfont.instrument(audioContext, 'marimba', { soundfont: 'FluidR3_GM', gain: 1.5 }).then(function (instrument) {
             sax = instrument;
         });
 	
@@ -367,6 +481,7 @@ function sleep(ms) {
 			// Store the current measure for reference in the setTimeout callbacks
 			var currentMeasure = this.measures[this.measureOn  % this.phraseLength];
 			var chords = currentMeasure.chords
+			drawSheetMusic(this,this.measureOn*4)
 			
 			var secondsInMeasure = 60.0 / this.bpm * 4
 			
@@ -484,7 +599,6 @@ function sleep(ms) {
 		getSoloScale(time) {
 			// Refer to table 1 in https://www.researchgate.net/publication/2342018_GenJam_A_Genetic_Algorithm_for_Generating_Jazz_Solos for the 
 			var chord = this.getChordAtTime(time);
-			console.log(chord.key)
 			var keyScale
 			if(chord.key == 0)
 				var keyScale = Tonal.Key.majorKey("C").scale;
@@ -572,6 +686,9 @@ function sleep(ms) {
 			
 			var time = 0;
 			while(time < piece.phraseLength * 4) {
+				rhythmsArr.push(1);
+				time+=1
+				/*
 				if(time%4 >= 2) {
 					rhythmsArr.push(1);
 					time+=1
@@ -579,6 +696,7 @@ function sleep(ms) {
 					rhythmsArr.push(2);
 					time+=2
 				}
+				*/
 			}
 			
 			var bassTime = 0;
@@ -715,10 +833,16 @@ function sleep(ms) {
 
 		    // We will store the bass line options and their points here
 		    let bassLineOptions = [];
-
+			
 		    // We will check the next two chords to form potential bass lines
 		    const nextChord1Notes = this.getSoloScale(time + rhythmsArr[index+1]);
 		    const nextChord2Notes = this.getSoloScale(time + rhythmsArr[index+1] + rhythmsArr[index+2]);
+			
+			console.log(chordNotes)
+			console.log(nextChord1Notes)
+			console.log(nextChord2Notes)
+			console.log("--------")
+			
 			
 			const nextSoloWave0 = this.getSoloWave(time);
 			const nextSoloWave1 = this.getSoloWave(time + rhythmsArr[index+1]);
@@ -823,7 +947,6 @@ function sleep(ms) {
 			
 		    // Sort the bass line options by points in descending order
 		    bassLineOptions.sort((a, b) => b.thisPoints - a.thisPoints);
-			console.log(bassLineOptions)
 			
 		    // Return the sorted bass line options
 		    return bassLineOptions;
@@ -850,8 +973,8 @@ function sleep(ms) {
 			}
 		    }
 		generateChords() {
-			this.measures.push(new Measure([new Chord("Dmin7", 0, 3.75)]))
-			for(var i = 1; i < this.phraseLength; i++) {
+			this.measures.push(new Measure([new Chord("Dm7", 0, 3.75)]), new Measure([new Chord("Cmin7", -3, 3.75)]), new Measure([new Chord("Dm7", 0, 3.75)]), new Measure([new Chord("E7", 3, 3.75)]))
+			for(var i = this.measures.length; i < this.phraseLength; i++) {
 				this.keyChange()
 				var nextChord = this.getNextChord(this.measures[i-1].chords)
 				//console.log(nextChord);
@@ -868,7 +991,7 @@ function sleep(ms) {
 	
 	
 	
-	var piece = new Phrase(0, 64)
+	var piece = new Phrase(0, 4)
 	piece.generateMeasures()
 	
 	
