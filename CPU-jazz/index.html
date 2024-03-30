@@ -139,6 +139,10 @@
 		for(let soloNote of piece.measures[i].soloNotes) {
 			drawMidiNote(soloNote.note, soloNote.beat + i*4, 0, useSharps)
 		}
+		
+		for(let bassNote of piece.measures[i].bassNotes) {
+			drawMidiNote(bassNote.note, bassNote.beat + i*4, 0, useSharps)
+		}
       }
 
       // Draw the treble clef
@@ -252,7 +256,7 @@ function sleep(ms) {
             bass = instrument;
         });
 		
-		Soundfont.instrument(audioContext, 'marimba', { soundfont: 'FluidR3_GM', gain: 1.5 }).then(function (instrument) {
+		Soundfont.instrument(audioContext, 'alto_sax', { soundfont: 'FluidR3_GM', gain: 1.5 }).then(function (instrument) {
             sax = instrument;
         });
 	
@@ -351,7 +355,7 @@ function sleep(ms) {
 			this.homekey = key;
 			this.currentKey = key;
 			this.measureOn = 0;
-			this.bpm = 230;
+			this.bpm = 120;
 		}
 		getKeychangeLikeness() {
 			var data = [600/49497.0 ,1925/49497.0,3850/49497.0,2550/49497.0,3050/49497.0,6490/49497.0,10850/49497.0,3025/49497.0,9775/49497.0,2800/49497.0,1633,2825/49497.0]
@@ -380,7 +384,7 @@ function sleep(ms) {
 		getFlatsSharps(passedKey) {
 			var returnStr = ""
 			for(var i = 0; i < Math.abs(passedKey); i++) {
-				if(this.currentKey < 0) {
+				if(passedKey < 0) {
 					returnStr+="b"
 				} else {
 					returnStr+="#"
@@ -481,7 +485,7 @@ function sleep(ms) {
 			// Store the current measure for reference in the setTimeout callbacks
 			var currentMeasure = this.measures[this.measureOn  % this.phraseLength];
 			var chords = currentMeasure.chords
-			drawSheetMusic(this,this.measureOn*4)
+			drawSheetMusic(this,(this.measureOn*4) % this.phraseLength)
 			
 			var secondsInMeasure = 60.0 / this.bpm * 4
 			
@@ -609,7 +613,7 @@ function sleep(ms) {
 		
 		// The wave approximately the solo
 		getSoloWave(time) {
-			return Math.round(Math.cos(time / 3) * 10 + 60)
+			return Math.round(Math.cos(time / 3) * 8 + 67)
 		}
 		// Take an input of 60 and 4
 		// Make it the closest mod 4 of 60, so 64 in this case
@@ -686,17 +690,22 @@ function sleep(ms) {
 			
 			var time = 0;
 			while(time < piece.phraseLength * 4) {
-				rhythmsArr.push(1);
-				time+=1
+				
 				/*
+				rhythmsArr.push(2);
+				time+=2
+				*/
+				
+				
 				if(time%4 >= 2) {
-					rhythmsArr.push(1);
-					time+=1
+					rhythmsArr.push(0.5);
+					time+=0.5
 				} else {
 					rhythmsArr.push(2);
 					time+=2
 				}
-				*/
+				
+				
 			}
 			
 			var bassTime = 0;
@@ -715,11 +724,11 @@ function sleep(ms) {
 					for(var i = 0; i < bestBassLineOption.soloLine.length; i++) {
 						var midiBass = this.getMidiClosestTo(this.getSoloWave(bassTime), Tonal.Midi.toMidi(bestBassLineOption.soloLine[i] + "0") % 12)
 						this.writeSoloNote(bassTime, midiBass);
-						bassTime += rhythmsArr[index];
+						bassTime += rhythmsArr[index+i]
 					}
 					previousBaseline = bestBassLineOption
 			    }
-				index+=1
+				index+=3
 			}
 		}
 		getChordAtTime(time) {
@@ -835,18 +844,13 @@ function sleep(ms) {
 		    let bassLineOptions = [];
 			
 		    // We will check the next two chords to form potential bass lines
-		    const nextChord1Notes = this.getSoloScale(time + rhythmsArr[index+1]);
-		    const nextChord2Notes = this.getSoloScale(time + rhythmsArr[index+1] + rhythmsArr[index+2]);
-			
-			console.log(chordNotes)
-			console.log(nextChord1Notes)
-			console.log(nextChord2Notes)
-			console.log("--------")
+		    const nextChord1Notes = this.getSoloScale(time + rhythmsArr[index]);
+		    const nextChord2Notes = this.getSoloScale(time + rhythmsArr[index] + rhythmsArr[index+1]);
 			
 			
 			const nextSoloWave0 = this.getSoloWave(time);
-			const nextSoloWave1 = this.getSoloWave(time + rhythmsArr[index+1]);
-			const nextSoloWave2	= this.getSoloWave(time + rhythmsArr[index+1] + rhythmsArr[index+2]);
+			const nextSoloWave1 = this.getSoloWave(time + rhythmsArr[index]);
+			const nextSoloWave2	= this.getSoloWave(time + rhythmsArr[index] + rhythmsArr[index+1]);
 			
 
 		    // Helper function to calculate points for a given bass line
@@ -973,7 +977,7 @@ function sleep(ms) {
 			}
 		    }
 		generateChords() {
-			this.measures.push(new Measure([new Chord("Dm7", 0, 3.75)]), new Measure([new Chord("Cmin7", -3, 3.75)]), new Measure([new Chord("Dm7", 0, 3.75)]), new Measure([new Chord("E7", 3, 3.75)]))
+			this.measures.push(new Measure([new Chord("Dm7", 0, 3.75)]))
 			for(var i = this.measures.length; i < this.phraseLength; i++) {
 				this.keyChange()
 				var nextChord = this.getNextChord(this.measures[i-1].chords)
@@ -991,7 +995,7 @@ function sleep(ms) {
 	
 	
 	
-	var piece = new Phrase(0, 4)
+	var piece = new Phrase(0, 64)
 	piece.generateMeasures()
 	
 	
