@@ -322,7 +322,7 @@ function sleep(ms) {
             bass = instrument;
         });
 		
-		Soundfont.instrument(audioContext, 'trumpet', { soundfont: 'FluidR3_GM', gain: 1.5 }).then(function (instrument) {
+		Soundfont.instrument(audioContext, 'trumpet', { soundfont: 'FluidR3_GM', gain: 1 }).then(function (instrument) {
             sax = instrument;
         });
 	
@@ -421,7 +421,7 @@ function sleep(ms) {
 			this.homekey = key;
 			this.currentKey = key;
 			this.measureOn = 0;
-			this.bpm = 220;
+			this.bpm = 120;
 		}
 		getKeychangeLikeness() {
 			var data = retrieveProbabilities()
@@ -690,7 +690,7 @@ function sleep(ms) {
 		
 		// The wave approximately the solo
 		getSoloWave(time) {
-			return Math.round(Math.cos(time / 3) * 8 + 67)
+			return Math.round(Math.cos(time / 3) * 5 + 67)
 		}
 		// Take an input of 60 and 4
 		// Make it the closest mod 4 of 60, so 64 in this case
@@ -774,13 +774,66 @@ function sleep(ms) {
 				*/
 				
 				
+				
+				for(var i = 0; i < 5; i++) {
+					rhythmsArr.push(1);
+					time+=1
+				}
+				
+				for(var i = 0; i < 2; i++) {
+					rhythmsArr.push(0.5);
+					time+=0.5
+				}
+				
+				rhythmsArr.push(2);
+				time+=2
+				
+				for(var i = 0; i < 6; i++) {
+					rhythmsArr.push(1);
+					time+=1
+				}
+				
+				rhythmsArr.push(2);
+				time+=2
+				
+				for(var i = 0; i < 4; i++) {
+					rhythmsArr.push(0.5);
+					time+=0.5
+				}
+				
+				rhythmsArr.push(1);
+				time+=1
+				
+				for(var i = 0; i < 2; i++) {
+					rhythmsArr.push(0.5);
+					time+=0.5
+				}
+				
+				for(var i = 0; i < 4; i++) {
+					rhythmsArr.push(1);
+					time+=1
+				}
+				
+				rhythmsArr.push(1.5);
+				time+=1.5
+				
+				for(var i = 0; i < 5; i++) {
+					rhythmsArr.push(0.5);
+					time+=0.5
+				}
+				
+				rhythmsArr.push(4);
+				time+=4
+				
+				/*
 				if(time%4 >= 2) {
 					rhythmsArr.push(0.5);
 					time+=0.5
 				} else {
-					rhythmsArr.push(2);
-					time+=2
+					rhythmsArr.push(.5);
+					time+=.5
 				}
+				*/
 				
 				
 			}
@@ -998,7 +1051,7 @@ function sleep(ms) {
 				// Check if the bass line is a fifth progression (C - G - D for example)
 				if (firstInterval === "5P" &&
 					secondInterval === "5P") {
-					points += 0.5; // Fifths bass line
+					points += 0.4; // Fifths bass line
 				}
 				
 				var soloWaves = [nextSoloWave0, nextSoloWave1, nextSoloWave2]
@@ -1062,6 +1115,8 @@ function sleep(ms) {
 				this.measures.push(new Measure([nextChord]))
 				//console.log(this.currentKey)
 			}
+			
+			// TODO: if points for chord are pretty low, try adding in another chord into the measure
 		}
 		generateMeasures() {
 			this.generateChords()
