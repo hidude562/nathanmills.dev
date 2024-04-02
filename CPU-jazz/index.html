@@ -85,6 +85,7 @@
 </script>
 
 <button id="play-chord">Generate & play!</button>
+<p id="completionProgress"></p>
 
 
 <canvas id="sheetMusic" width="600" height="400"></canvas>
@@ -311,14 +312,14 @@ function sleep(ms) {
         }
 
         // Load the piano and drum instruments when the page loads
-        Soundfont.instrument(audioContext, 'electric_piano_1').then(function (instrument) {
+        Soundfont.instrument(audioContext, 'acoustic_grand_piano').then(function (instrument) {
             piano = instrument;
             // Enable the button once the piano is loaded
             document.getElementById('play-chord').disabled = false;
         });
         
         // Load the piano and drum instruments when the page loads
-        Soundfont.instrument(audioContext, 'acoustic_bass', { soundfont: 'FluidR3_GM', gain: 1.5 }).then(function (instrument) {
+        Soundfont.instrument(audioContext, 'acoustic_bass', { soundfont: 'FluidR3_GM', gain: 3 }).then(function (instrument) {
             bass = instrument;
         });
 		
@@ -334,7 +335,173 @@ function sleep(ms) {
         
         // Disable the button until the instruments are loaded
         document.getElementById('play-chord').disabled = true;
-    </script>
+</script>
+
+
+
+<script>
+	/*
+	A tree based approach to rhythm generation
+	Starts with a whole note and then procedes to subdivide everything
+	
+	The rhythms are rearanged in a specific way depending on the phrase length
+	
+	Lets say the piece has a phrase length of 8
+	So for example, the rhythm of Measure 4 is the direct sibling of measure 1
+	
+	
+	Key:
+		W - Whole note
+		F - Dotted half note
+		H - Half note
+		D - Dotted quarter note
+		Q - Quarter note
+		E - Eigth note
+	
+	*/
+	class Tree {
+		static weightedPick(payload) {
+			/*
+			[
+			{value: "DE", prob: 1}
+			]
+			*/
+			
+			var random = Math.random();
+			for(var i = 0; i < payload.length; i++) {
+				random-=payload[i].prob
+				if(random<=0)
+					return payload[i].value
+			}
+		}
+		subdivideRhythm() {
+			var newRhythm = "";
+			for(var i = 0; i < this.rhythm.length; i++) {
+				var newSubdivided = ""
+				if(Math.random() < 1) {
+					switch(this.rhythm.slice(i, i+1)) {
+						case 'W':
+							//console.log("W")
+							newSubdivided = Tree.weightedPick([{value: "HH", prob: 0.7}, {value: "FQ", prob: 0.15}, {value: "QF", prob: 0.15}])
+							break
+						case 'H':
+							newSubdivided = Tree.weightedPick([{value: "QQ", prob: 0.7}, {value: "DE", prob: 0.1}, {value: "SED", prob: 0.1}, {value: "AED", prob: 0.1}])
+							break
+						case 'Q':
+							newSubdivided = Tree.weightedPick([{value: "EE", prob: 0.5}, {value: "Q", prob: 0.5}])
+							break
+						default:
+							newSubdivided = this.rhythm.slice(i, i+1);
+							break
+					}
+				} else {
+					newSubdivided=this.rhythm.slice(i, i+1)
+				}
+				
+				newRhythm+=newSubdivided
+			}
+			
+			this.rhythm = newRhythm
+		}
+		// Only the children at the bottom-most branch
+		getAllBaseChildren() {
+			if(this.currentDepth < this.maxDepth) {
+				return (this.branches[0].getAllBaseChildren()).concat(this.branches[1].getAllBaseChildren())
+			}
+			return [this];
+		}
+		getChildrenInOrder() {
+			var children = this.getAllBaseChildren()
+			children.sort((a, b) => parseFloat(a.order) - parseFloat(b.order));
+			var rhythm = ""
+			return children;
+		}
+		getRhythmArray() {
+			var children = this.getChildrenInOrder();
+			var arr = []
+			for(let child of children) {
+				var rhythmStr = child.rhythm;
+				console.log(child.rhythm);
+				for(var i = 0; i < rhythmStr.length; i++) {
+					switch(rhythmStr.slice(i, i+1)) {
+						case 'W':
+							arr.push(4);
+							break;
+						case 'H':
+							arr.push(2);
+							break;
+						case 'Q':
+							arr.push(1);
+							break;
+						case 'S':
+							arr.push(0.5);
+							break;
+						case 'A':
+							arr.push(3.5);
+							break;
+						case 'F':
+							arr.push(3);
+							break;
+						case 'D':
+							arr.push(1.5);
+							break;
+						case 'E':
+							arr.push(0.5);
+							break;
+					}
+				}
+			}
+			
+			return arr;
+		}
+		getThisOrder() {
+			var multiplicity = 1;
+			var measureNumber = this.measures-1;
+			for(let isRight of this.directions) {
+				if(!isRight) {
+					measureNumber-=multiplicity
+				} else {
+				
+				}
+				multiplicity*=2
+			}
+			return measureNumber;
+		}
+		constructor(payload) {
+			if(payload.parent != undefined) {
+				var parent = payload.parent;
+				this.maxDepth=parent.maxDepth;
+				this.measures=parent.measures
+				this.currentDepth = parent.currentDepth+1;
+				this.isRight =  payload.isRight;
+				this.directions = []
+				for(var item of parent.directions)
+					this.directions.push(item);
+				this.directions.push(this.isRight);
+				this.rhythm = parent.rhythm;
+				this.order = this.getThisOrder()
+				
+				if(!this.isRight)
+					this.subdivideRhythm()
+				
+				if(this.currentDepth < this.maxDepth) {
+					this.branches = [new Tree({parent: this, isRight: false}), new Tree({parent: this, isRight: true})];
+				}
+			} else {
+				this.maxDepth=3;
+				this.measures=Math.pow(2,this.maxDepth)
+				this.currentDepth = 0;
+				this.rhythm = "W"
+				this.isRight = true
+				this.directions = []
+				this.branches = [new Tree({parent: this, isRight: false}), new Tree({parent: this, isRight: true})];
+			}
+		}
+	}
+</script>
+
+
+
 
 <script>
 	class Measure {
@@ -421,7 +588,12 @@ function sleep(ms) {
 			this.homekey = key;
 			this.currentKey = key;
 			this.measureOn = 0;
-			this.bpm = 120;
+			this.bpm = 330;
+			
+			this.soloistLowerRange =  52
+			this.soloistUpperRange =  85
+			
+			this.currentSoloistMidiNote = 0;
 		}
 		getKeychangeLikeness() {
 			var data = retrieveProbabilities()
@@ -451,12 +623,14 @@ function sleep(ms) {
 			
 			this.currentKey += i-6
 			
+			
 			if(this.currentKey < -6) {
 				this.currentKey+=12
 			}
 			if(this.currentKey > 6) {
 				this.currentKey-=12
 			}
+			
 		}
 		getFlatsSharps(passedKey) {
 			var returnStr = ""
@@ -766,81 +940,23 @@ function sleep(ms) {
 			var rhythmsArr = []
 			
 			var time = 0;
-			while(time < piece.phraseLength * 4) {
-				
-				/*
-				rhythmsArr.push(2);
-				time+=2
-				*/
-				
-				
-				
-				for(var i = 0; i < 5; i++) {
-					rhythmsArr.push(1);
-					time+=1
-				}
-				
-				for(var i = 0; i < 2; i++) {
-					rhythmsArr.push(0.5);
-					time+=0.5
-				}
-				
-				rhythmsArr.push(2);
-				time+=2
-				
-				for(var i = 0; i < 6; i++) {
-					rhythmsArr.push(1);
-					time+=1
-				}
-				
-				rhythmsArr.push(2);
-				time+=2
-				
-				for(var i = 0; i < 4; i++) {
-					rhythmsArr.push(0.5);
-					time+=0.5
-				}
-				
-				rhythmsArr.push(1);
-				time+=1
-				
-				for(var i = 0; i < 2; i++) {
-					rhythmsArr.push(0.5);
-					time+=0.5
-				}
-				
-				for(var i = 0; i < 4; i++) {
-					rhythmsArr.push(1);
-					time+=1
-				}
-				
-				rhythmsArr.push(1.5);
-				time+=1.5
-				
-				for(var i = 0; i < 5; i++) {
-					rhythmsArr.push(0.5);
-					time+=0.5
-				}
-				
-				rhythmsArr.push(4);
-				time+=4
-				
-				/*
-				if(time%4 >= 2) {
-					rhythmsArr.push(0.5);
-					time+=0.5
-				} else {
-					rhythmsArr.push(.5);
-					time+=.5
-				}
-				*/
-				
-				
+			
+			var rhythmMade = new Tree({});
+			var rhythmInts = rhythmMade.getRhythmArray()
+			console.log(rhythmInts)
+			var rhythmIndexer = 0;
+			while(time < this.phraseLength * 4) {
+				var noteLen = rhythmInts[rhythmIndexer % rhythmInts.length]
+				console.log(noteLen);
+				rhythmsArr.push(noteLen);
+				time += noteLen;
+				rhythmIndexer+=1;
 			}
 			
 			var bassTime = 0;
 			var index = 0
 			var previousBaseline = this.getSoloPoints(0, bassTime, rhythmsArr)[0];
+			var noteBefore = -1
 			while (bassTime < this.phraseLength * 4) { // Assuming 4 beats per measure
 			    // Get the bass line options at the current time
 			    var bassLineOptions = this.getSoloPoints(index, bassTime, rhythmsArr);
@@ -852,13 +968,29 @@ function sleep(ms) {
 					
 					// Write the first note of the best bass line to the measure
 					for(var i = 0; i < bestBassLineOption.soloLine.length; i++) {
-						var midiBass = this.getMidiClosestTo(this.getSoloWave(bassTime), Tonal.Midi.toMidi(bestBassLineOption.soloLine[i] + "0") % 12)
+						var midiBass = 0
+						if(noteBefore == -1)
+							midiBass = this.getMidiClosestTo(this.getSoloWave(bassTime), Tonal.Midi.toMidi(bestBassLineOption.soloLine[i] + "0") % 12)
+						else
+							midiBass = this.getMidiClosestTo(noteBefore, Tonal.Midi.toMidi(bestBassLineOption.soloLine[i] + "0") % 12)
+						
+						/*
+						if(midiBass < this.soloistLowerRange)
+							midiBass += 12
+						if(midiBass > this.soloistUpperRange)
+							midiBass -= 12
+						*/
+						
+						noteBefore = midiBass
+						this.currentSoloistMidiNote = noteBefore
 						this.writeSoloNote(bassTime, midiBass);
 						bassTime += rhythmsArr[index+i]
 					}
 					previousBaseline = bestBassLineOption
 			    }
 				index+=3
+				
+				document.getElementById("completionProgress").innerHTML = "Generating Solo: " + Math.floor(bassTime / 4) + " / " + this.phraseLength + " measures";
 			}
 		}
 		getChordAtTime(time) {
@@ -879,13 +1011,43 @@ function sleep(ms) {
 			var newNextGens = []
 			
 			for(var i = 0; i < nextGens.length; i++) {
-				var pointsDeducting = 0
-				for(var j = 0; j < nextGens[i].soloLine.length; j++) {
+				var pointsAdding = 0
+				var increasingAmount = 0
+				
+				for(var j = 1; j < nextGens[i].soloLine.length; j++) {
+					// Approximately get increasing note or nah
+					var intervalNum = parseInt(Tonal.Interval.distance(nextGens[i].soloLine[j], nextGens[i].soloLine[j-1]).slice(0,1))
+					if(intervalNum < 5)
+						increasingAmount+=intervalNum
+					else
+						increasingAmount-=8-intervalNum
+					/*
 					if(previousBass.soloLine.includes(nextGens[i].soloLine[j])) {
-						pointsDeducting -= 1.75
+						pointsAdding -= .75
 					}
+					*/
+					
 				}
-				nextGens[i].thisPoints += pointsDeducting
+				
+				//console.log(this.currentSoloistMidiNote)
+				
+				var meshedLine = [previousBass.soloLine[2], nextGens[i].soloLine[0], nextGens[i].soloLine[1]]
+				var meshedLinePoints = this.calculateSoloPoints(meshedLine)
+				pointsAdding += meshedLinePoints
+				
+				if(this.currentSoloistMidiNote + 15 > this.soloistUpperRange) {
+					if(increasingAmount > 0)
+						pointsAdding+=.5
+				}
+				
+				if(this.currentSoloistMidiNote - 15 < this.soloistLowerRange) {
+					if(increasingAmount < 0)
+						pointsAdding+=.5
+				}
+				
+				nextGens[i].thisPoints += pointsAdding
+				
+				nextGens[i].thisPoints += Math.random() / 100
 			}
 			nextGens.sort((a, b) => b.thisPoints - a.thisPoints);
 		}
@@ -958,6 +1120,114 @@ function sleep(ms) {
 		    // Return the sorted bass line options
 		    return bassLineOptions;
 		}
+		
+		// Helper function to calculate points for a given bass line
+		calculateSoloPoints(bassNotes) {
+			let points = 0;
+
+			// Check for duplicate notes in the bass line
+			const uniqueBassNotes = new Set(bassNotes);
+			if (uniqueBassNotes.size !== bassNotes.length) {
+				// If there are duplicates, set points to zero and return
+				return -10;
+			}
+			
+			var firstInterval = Tonal.Interval.distance(bassNotes[0], bassNotes[1])
+			var secondInterval = Tonal.Interval.distance(bassNotes[1], bassNotes[2])
+			
+			var backwardsFirstInterval = Tonal.Interval.distance(bassNotes[2], bassNotes[1])
+			var backwardsSecondInterval = Tonal.Interval.distance(bassNotes[1], bassNotes[0])
+			
+			// Fits to bounds
+			var rangeFitterLower  = Math.pow(((this.currentSoloistMidiNote + 5) / this.soloistLowerRange), 5)
+			var rangeFitterUpper = Math.pow(this.soloistLowerRange / (this.currentSoloistMidiNote - 10), 5)
+			
+			// Check if the bass line forms a chromatic progression
+			if ((firstInterval === "1A" || firstInterval === "2m") &&
+				(secondInterval === "1A" || secondInterval === "2m")) {
+				points += 1.5; // Chromatic bass line
+			}
+			
+			// Check if the bass line forms a chromatic progression
+			if ((backwardsFirstInterval === "1A" || backwardsFirstInterval === "2m") &&
+				(backwardsSecondInterval === "1A" || backwardsSecondInterval === "2m")) {
+				points += 1.5; // Chromatic bass line
+			}
+			
+			
+			// Moving up scales
+			
+			if ((firstInterval === "1A" || firstInterval === "2m") &&
+				(secondInterval === "2M" || secondInterval === "2M")) {
+				points += 1.0; // First 3 notes of phygrian
+			}
+			
+			if ((firstInterval === "2M" || firstInterval === "2M") &&
+				(secondInterval === "2M" || secondInterval === "2M")) {
+				points += 1.0; // First 3 notes of major
+			}
+			
+			if ((firstInterval === "2M") &&
+				(secondInterval === "2m")) {
+				points += 1.0; // First 3 notes of minor
+			}
+			
+			if ((backwardsFirstInterval === "1A" || backwardsFirstInterval === "2m") &&
+				(backwardsSecondInterval === "2M" || backwardsSecondInterval === "2M")) {
+				points += 1.0; // First 3 notes of phygrian
+			}
+			
+			if ((backwardsFirstInterval === "2M" || backwardsFirstInterval === "2M") &&
+				(backwardsSecondInterval === "2M" || backwardsSecondInterval === "2M")) {
+				points += 1.0; // First 3 notes of major
+			}
+			
+			// Various resolves
+			
+			if ((firstInterval === "2m") &&
+				(secondInterval === "7M")) {
+				points += 1.5; // B - C - B, for example
+			}
+			
+			if ((firstInterval === "6M") &&
+				(secondInterval === "2m")) {
+				points += 1; // D B C for example
+			}
+			
+			if ((firstInterval === "7m") &&
+				(secondInterval === "2M")) {
+				points += 1.5; // D C D for example
+			}
+			
+			
+			// Chords
+
+			// Check if the bass line forms a triad (excluding diminished/augmented)
+			if (Tonal.Chord.detect(bassNotes).some(chordName => chordName.includes("dim") || chordName.includes("aug"))) {
+				points += 0.5; // Diminished/Augmented triads
+			} else if (Tonal.Chord.detect(bassNotes).some(chordName => chordName.includes("m") || chordName.includes("M"))) {
+				// console.log(Tonal.Chord.detect(bassNotes))
+				points += 1; // Triad
+			}
+
+			// Check if the bass line is a fifth progression (C - G - D for example)
+			if (firstInterval === "5P" &&
+				secondInterval === "5P") {
+				points += 0.4; // Fifths bass line
+			}
+			
+			/*
+			var soloWaves = [nextSoloWave0, nextSoloWave1, nextSoloWave2]
+			var timeKeeper = time
+			for(var i = 0; i < soloWaves.length; i++) {
+				points += this.getSoloPointsWaveClosenessDeduction(timeKeeper, soloWaves[i])
+				timeKeeper += rhythmsArr[index+i+1]
+			}
+			*/
+		
+
+			return points;
+		}
 		getSoloPoints(index, time, rhythmsArr) {
 			/*
 			Alot like the bass points algorithm
@@ -982,89 +1252,6 @@ function sleep(ms) {
 			const nextSoloWave1 = this.getSoloWave(time + rhythmsArr[index]);
 			const nextSoloWave2	= this.getSoloWave(time + rhythmsArr[index] + rhythmsArr[index+1]);
 			
-
-		    // Helper function to calculate points for a given bass line
-		    const calculateSoloPoints = (bassNotes) => {
-				let points = 0;
-
-				// Check for duplicate notes in the bass line
-				const uniqueBassNotes = new Set(bassNotes);
-				if (uniqueBassNotes.size !== bassNotes.length) {
-					// If there are duplicates, set points to zero and return
-					return -10;
-				}
-				
-				var firstInterval = Tonal.Interval.distance(bassNotes[0], bassNotes[1])
-				var secondInterval = Tonal.Interval.distance(bassNotes[1], bassNotes[2])
-				
-				var backwardsFirstInterval = Tonal.Interval.distance(bassNotes[2], bassNotes[1])
-				var backwardsSecondInterval = Tonal.Interval.distance(bassNotes[1], bassNotes[0])
-				
-				// Check if the bass line forms a chromatic progression
-				if ((firstInterval === "1A" || firstInterval === "2m") &&
-					(secondInterval === "1A" || secondInterval === "2m")) {
-					points += 1.5; // Chromatic bass line
-				}
-				
-				
-				
-				if ((firstInterval === "1A" || firstInterval === "2m") &&
-					(secondInterval === "2M" || secondInterval === "2M")) {
-					points += 0.3; // First 3 notes of phygrian
-				}
-				
-				if ((firstInterval === "2M" || firstInterval === "2M") &&
-					(secondInterval === "2M" || secondInterval === "2M")) {
-					points += 0.5; // First 3 notes of major
-				}
-				
-				if ((firstInterval === "2M") &&
-					(secondInterval === "2m")) {
-					points += 0.5; // First 3 notes of minor
-				}
-				
-				if ((backwardsFirstInterval === "1A" || backwardsFirstInterval === "2m") &&
-					(backwardsSecondInterval === "2M" || backwardsSecondInterval === "2M")) {
-					points += 0.3; // First 3 notes of phygrian
-				}
-				
-				if ((backwardsFirstInterval === "2M" || backwardsFirstInterval === "2M") &&
-					(backwardsSecondInterval === "2M" || backwardsSecondInterval === "2M")) {
-					points += 0.5; // First 3 notes of major
-				}
-				
-				if ((backwardsFirstInterval === "2M") &&
-					(backwardsSecondInterval === "2m")) {
-					points += 0.5; // First 3 notes of minor
-				}
-				
-				
-
-				// Check if the bass line forms a triad (excluding diminished/augmented)
-				if (Tonal.Chord.detect(bassNotes).some(chordName => chordName.includes("dim") || chordName.includes("aug"))) {
-					points += 0.5; // Diminished/Augmented triads
-				} else if (Tonal.Chord.detect(bassNotes).some(chordName => chordName.includes("m") || chordName.includes("M"))) {
-					// console.log(Tonal.Chord.detect(bassNotes))
-					points += 1; // Triad
-				}
-
-				// Check if the bass line is a fifth progression (C - G - D for example)
-				if (firstInterval === "5P" &&
-					secondInterval === "5P") {
-					points += 0.4; // Fifths bass line
-				}
-				
-				var soloWaves = [nextSoloWave0, nextSoloWave1, nextSoloWave2]
-				var timeKeeper = time
-				for(var i = 0; i < soloWaves.length; i++) {
-					points += this.getSoloPointsWaveClosenessDeduction(timeKeeper, soloWaves[i])
-					timeKeeper += rhythmsArr[index+i+1]
-				}
-			
-
-				return points;
-		    }
-
 		    // Generate all combinations of bass notes from the current and next two chords
 		    for (let i = 0; i < chordNotes.length; i++) {
 				for (let j = 0; j < nextChord1Notes.length; j++) {
@@ -1072,7 +1259,8 @@ function sleep(ms) {
 						// Form a bass line using one note from each chord
 						var soloLine = [chordNotes[i], nextChord1Notes[j], nextChord2Notes[k]];
 						
-						var thisPoints = calculateSoloPoints(soloLine);
+						var thisPoints = this.calculateSoloPoints(soloLine);
+						// Add a bit of random to the solo
 						// Add the bass line and its points to the options
 						bassLineOptions.push({ soloLine, thisPoints });
 					}
