@@ -84,6 +84,55 @@
     }
 </script>
 
+<h2>Rhythm Parameters</h2>
+
+<p>Parameters to modify the rhythm for the solo</p>
+
+<label for="probability11">Rhythm recursion</label>
+<input type="number" id="rhythmRecursion" name="probability11" min="0" max="10" step="1" value="3"><br>
+
+<label for="probability11">Note subdivision probability</label>
+<input type="number" id="subdivisionProbability" name="probability11" min="0" max="1.0" step="1" value="0.99"><br>
+
+<label for="probability11">Syncopation solo probaility</label>
+<input type="number" id="syncopationProbability" name="probability11" min="0" max="1.0" step="1" value="0.1"><br>
+
+<h2>Solo's note parameters</h2>
+
+<p>The solo generates its note values in 3 note segments, rating them based off how random they are, then combining these probabilities with its previous segments. For example, a segment could be C-D-E, C-E-G, and lotsa things</p>
+
+<label for="probability11">Chromatic (C-C#-D)</label>
+<input type="number" id="chromaticProb" name="probability11" min="0" max="1.0" step="1" value="1.5"><br>
+
+<label for="probability11">Scale-like (C-D-Eb)</label>
+<input type="number" id="scaleProb" name="probability11" min="0" max="1.0" step="1" value="0.5"><br>
+
+<label for="probability11">Diminished/aug triad (C-E-Ab), (C-D#-F#)</label>
+<input type="number" id="dimProb" name="probability11" min="0" max="1.0" step="1" value="0.5"><br>
+
+<label for="probability11">Triad (C-E-G)</label>
+<input type="number" id="triadProb" name="probability11" min="0" max="1.0" step="1" value="1.0"><br>
+
+<label for="probability11">Reverse scale direction (B-C-B)</label>
+<input type="number" id="reverseProb" name="probability11" min="0" max="1.0" step="1" value="1.5"><br>
+
+<label for="probability11">Major resolve (D-B-C)</label>
+<input type="number" id="resolveProb" name="probability11" min="0" max="1.0" step="1" value="1.0"><br>
+
+<label for="probability11">Fiths sequence (C-G-D)</label>
+<input type="number" id="fithsProb" name="probability11" min="0" max="1.0" step="1" value="0.4"><br>
+
+<label for="probability11">Randomness</label>
+
+<input type="number" id="randomness" name="probability11" min="0" max="1.0" step="1" value="0.01"><br>
+
+<h2>Misc.</h2>
+
+<label for="probability11">BPM</label>
+<input type="number" id="BPMinput" name="probability11" min="10" max="1000" step="1" value="150"><br>
+
+<br>
+
 <button id="play-chord">Generate & play!</button>
 <p id="completionProgress"></p>
 
@@ -376,16 +425,17 @@ function sleep(ms) {
 		}
 		subdivideRhythm() {
 			var newRhythm = "";
+			var syncopationProbability = document.getElementById("syncopationProbability").value
 			for(var i = 0; i < this.rhythm.length; i++) {
 				var newSubdivided = ""
-				if(Math.random() < 1) {
+				if(Math.random() < parseFloat(document.getElementById("subdivisionProbability").value)) {
 					switch(this.rhythm.slice(i, i+1)) {
 						case 'W':
 							//console.log("W")
 							newSubdivided = Tree.weightedPick([{value: "HH", prob: 0.7}, {value: "FQ", prob: 0.15}, {value: "QF", prob: 0.15}])
 							break
 						case 'H':
-							newSubdivided = Tree.weightedPick([{value: "QQ", prob: 0.7}, {value: "DE", prob: 0.1}, {value: "SED", prob: 0.1}, {value: "AED", prob: 0.1}])
+							newSubdivided = Tree.weightedPick([{value: "SED", prob: syncopationProbability}, {value: "AED", prob: syncopationProbability}, {value: "QQ", prob: 0.7}, {value: "DE", prob: 0.3}])
 							break
 						case 'Q':
 							newSubdivided = Tree.weightedPick([{value: "EE", prob: 0.5}, {value: "Q", prob: 0.5}])
@@ -437,7 +487,7 @@ function sleep(ms) {
 							arr.push(0.5);
 							break;
 						case 'A':
-							arr.push(3.5);
+							arr.push(1);
 							break;
 						case 'F':
 							arr.push(3);
@@ -490,7 +540,7 @@ function sleep(ms) {
 			} else {
 				this.maxDepth=3;
 				this.measures=Math.pow(2,this.maxDepth)
-				this.currentDepth = 0;
+				this.currentDepth = parseInt(document.getElementById("subdivisionProbability").value);
 				this.rhythm = "W"
 				this.isRight = true
 				this.directions = []
@@ -588,7 +638,7 @@ function sleep(ms) {
 			this.homekey = key;
 			this.currentKey = key;
 			this.measureOn = 0;
-			this.bpm = 330;
+			this.bpm = parseFloat(document.getElementById("BPMinput").value);
 			
 			this.soloistLowerRange =  52
 			this.soloistUpperRange =  85
@@ -1047,7 +1097,9 @@ function sleep(ms) {
 				
 				nextGens[i].thisPoints += pointsAdding
 				
-				nextGens[i].thisPoints += Math.random() / 100
+				
+				var randomness = parseFloat(document.getElementById("randomness").value)
+				nextGens[i].thisPoints += Math.random() * randomness
 			}
 			nextGens.sort((a, b) => b.thisPoints - a.thisPoints);
 		}
@@ -1142,16 +1194,26 @@ function sleep(ms) {
 			var rangeFitterLower  = Math.pow(((this.currentSoloistMidiNote + 5) / this.soloistLowerRange), 5)
 			var rangeFitterUpper = Math.pow(this.soloistLowerRange / (this.currentSoloistMidiNote - 10), 5)
 			
+			
+			var chromaticProb = parseFloat(document.getElementById("chromaticProb").value)
+			var scaleProb = parseFloat(document.getElementById("scaleProb").value)
+			var dimProb = parseFloat(document.getElementById("dimProb").value)
+			var triadProb = parseFloat(document.getElementById("triadProb").value)
+			var reverseProb = parseFloat(document.getElementById("reverseProb").value)
+			var resolveProb = parseFloat(document.getElementById("resolveProb").value)
+			var fithsProb   = parseFloat(document.getElementById("fithsProb").value)
+			
+			
 			// Check if the bass line forms a chromatic progression
 			if ((firstInterval === "1A" || firstInterval === "2m") &&
 				(secondInterval === "1A" || secondInterval === "2m")) {
-				points += 1.5; // Chromatic bass line
+				points += chromaticProb; // Chromatic bass line
 			}
 			
 			// Check if the bass line forms a chromatic progression
 			if ((backwardsFirstInterval === "1A" || backwardsFirstInterval === "2m") &&
 				(backwardsSecondInterval === "1A" || backwardsSecondInterval === "2m")) {
-				points += 1.5; // Chromatic bass line
+				points += chromaticProb; // Chromatic bass line
 			}
 			
 			
@@ -1159,44 +1221,44 @@ function sleep(ms) {
 			
 			if ((firstInterval === "1A" || firstInterval === "2m") &&
 				(secondInterval === "2M" || secondInterval === "2M")) {
-				points += 1.0; // First 3 notes of phygrian
+				points += scaleProb; // First 3 notes of phygrian
 			}
 			
 			if ((firstInterval === "2M" || firstInterval === "2M") &&
 				(secondInterval === "2M" || secondInterval === "2M")) {
-				points += 1.0; // First 3 notes of major
+				points += scaleProb; // First 3 notes of major
 			}
 			
 			if ((firstInterval === "2M") &&
 				(secondInterval === "2m")) {
-				points += 1.0; // First 3 notes of minor
+				points += scaleProb; // First 3 notes of minor
 			}
 			
 			if ((backwardsFirstInterval === "1A" || backwardsFirstInterval === "2m") &&
 				(backwardsSecondInterval === "2M" || backwardsSecondInterval === "2M")) {
-				points += 1.0; // First 3 notes of phygrian
+				points += scaleProb; // First 3 notes of phygrian
 			}
 			
 			if ((backwardsFirstInterval === "2M" || backwardsFirstInterval === "2M") &&
 				(backwardsSecondInterval === "2M" || backwardsSecondInterval === "2M")) {
-				points += 1.0; // First 3 notes of major
+				points += scaleProb; // First 3 notes of major
 			}
 			
 			// Various resolves
 			
 			if ((firstInterval === "2m") &&
 				(secondInterval === "7M")) {
-				points += 1.5; // B - C - B, for example
+				points += reverseProb; // B - C - B, for example
 			}
 			
 			if ((firstInterval === "6M") &&
 				(secondInterval === "2m")) {
-				points += 1; // D B C for example
+				points += resolveProb; // D B C for example
 			}
 			
 			if ((firstInterval === "7m") &&
 				(secondInterval === "2M")) {
-				points += 1.5; // D C D for example
+				points += reverseProb; // D C D for example
 			}
 			
 			
@@ -1204,16 +1266,16 @@ function sleep(ms) {
 
 			// Check if the bass line forms a triad (excluding diminished/augmented)
 			if (Tonal.Chord.detect(bassNotes).some(chordName => chordName.includes("dim") || chordName.includes("aug"))) {
-				points += 0.5; // Diminished/Augmented triads
+				points += dimProb; // Diminished/Augmented triads
 			} else if (Tonal.Chord.detect(bassNotes).some(chordName => chordName.includes("m") || chordName.includes("M"))) {
 				// console.log(Tonal.Chord.detect(bassNotes))
-				points += 1; // Triad
+				points += triadProb; // Triad
 			}
 
 			// Check if the bass line is a fifth progression (C - G - D for example)
 			if (firstInterval === "5P" &&
 				secondInterval === "5P") {
-				points += 0.4; // Fifths bass line
+				points += fithsProb; // Fifths bass line
 			}
 			
 			/*
@@ -1321,17 +1383,20 @@ function sleep(ms) {
 	var intervalId = null
 	
 	// Add event listener to the button
-        document.getElementById('play-chord').addEventListener('click', function() {
-			piece = new Phrase(0, 64)
-			piece.generateMeasures()
-			
-			if(intervalId == null) {
-					intervalId = window.setInterval(function(){
-				  piece.playMeasure()
-				}, 60/piece.bpm * 4000);
-			}
-			}
-			);
+	document.getElementById('play-chord').addEventListener('click', function() {
+		piece = new Phrase(0, 64);
+		piece.generateMeasures();
+
+		// Clear any existing interval
+		if (intervalId !== null) {
+			clearInterval(intervalId);
+		}
+
+		// Create a new interval
+		intervalId = window.setInterval(function() {
+			piece.playMeasure();
+		}, 60 / piece.bpm * 4000);
+	});
 </script>
 
 </div>
