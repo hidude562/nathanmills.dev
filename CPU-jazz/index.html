@@ -22,9 +22,9 @@
 </div>
 
 <div class="page_dis" id="mainContent">
-<h1></h1>
+<h1>C.P.U Jazz</h1>
 
-<p>Lorem ipsum dolor sit amet.</p>
+<p>Like CPU Bach, a 90s' program that generates music in the style of bach, this generates music in the genre of jazz, using just pure algorithms, no machine learning.</p>
 
 
 <script src="https://cdn.jsdelivr.net/npm/tonal/browser/tonal.min.js"></script>
@@ -130,6 +130,17 @@
 
 <label for="probability11">BPM</label>
 <input type="number" id="BPMinput" name="probability11" min="10" max="1000" step="1" value="150"><br>
+
+<label for="probability11">Measures</label>
+<input type="number" id="measaures" name="probability11" min="1" max="1000" step="1" value="64"><br>
+
+<h2>Fun</h2>
+
+<label for="probability11">Extra instruments in solo</label>
+<input type="number" id="soloExtraInstruments" name="probability11" min="0" max="1" step="1" value="0"><br>
+
+<label for="probability11">Piano style</label>
+<input type="number" id="style" name="probability11" min="10" max="1000" step="1" value="150"><br>
 
 <br>
 
@@ -997,7 +1008,7 @@ function sleep(ms) {
 			var rhythmIndexer = 0;
 			while(time < this.phraseLength * 4) {
 				var noteLen = rhythmInts[rhythmIndexer % rhythmInts.length]
-				console.log(noteLen);
+				//console.log(noteLen);
 				rhythmsArr.push(noteLen);
 				time += noteLen;
 				rhythmIndexer+=1;
@@ -1377,14 +1388,14 @@ function sleep(ms) {
 	
 	
 	
-	var piece = new Phrase(0, 64)
+	var piece
 	
 	
 	var intervalId = null
 	
 	// Add event listener to the button
 	document.getElementById('play-chord').addEventListener('click', function() {
-		piece = new Phrase(0, 64);
+		piece = new Phrase(0, parseInt(document.getElementById("measaures").value));
 		piece.generateMeasures();
 
 		// Clear any existing interval
