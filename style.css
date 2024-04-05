@@ -139,7 +139,6 @@ footer.bottom {
 	padding-bottom: 7px;
 	background-image: url("greengradient.png");
 	display: flex;
-	box-shadow: 4px 7px 1px rgb(29, 55, 102);
 }
 
 .horizontalLineBlue48 {
