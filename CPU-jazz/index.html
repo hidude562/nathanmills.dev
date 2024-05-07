@@ -24,11 +24,14 @@
 <div class="page_dis" id="mainContent">
 <h1>C.P.U Jazz</h1>
 
-<p>Like CPU Bach, a 90s' program that generates music in the style of bach, this generates music in the genre of jazz, using just pure algorithms, no machine learning. This runs pretty fast (Practically no time for chords, bass, solo takes a few seconds), even with really poor optimization. It uses a point based system for ranking chords, basslines, solos. For ranking chords, it essentially aims for more similar chords the farther the key signature, and for key signatures closer, for maybe +1 sharp/flat, or the same key, it makes the chords as different as possible.</p>
+<p>Inspired by CPU Bach, a 90s' program that generates music in the style of bach, this generates music instead in the genre of jazz, using just <b>pure algorithms, no machine learning</b>. This runs pretty fast (Practically no time for chords, bass, solo takes a few seconds), even with really poor optimization. I plan to rewrite this with better code and in an actual language like java. It uses a point based system for ranking chords, basslines, solos. For ranking chords, it essentially aims for more similar chords the farther the key signature, and for key signatures closer, for maybe +1 sharp/flat, or the same key, it makes the chords as different as possible.</p>
 
 <p>I would reccomend messing around with some of the parameters, you can achieve alot of different tones and styles</p>
 
-<p>TODO: backtrace until solo part with many good branches if points for one part are too low</p>
+<h1>Dice/board game rendition of this!</h1>
+<p>Alternatively, I made a <a href="JAZZ.pdf">simplified dice game version of this game</a> if you have an hour and want to jam with some friends!</p> 
+
+<p style="color: white">TODO: backtrace until solo part with many good branches if points for one part are too low</p>
 
 <script src="https://cdn.jsdelivr.net/npm/tonal/browser/tonal.min.js"></script>
 
@@ -105,6 +108,13 @@
 <label for="probability11">Syncopation solo probaility</label>
 <input type="number" id="syncopationProbability" name="probability11" min="0" max="1.0" step="1" value="0.1"><br>
 
+<label for="probability11">Triplet probaility</label>
+<input type="number" id="tripletProb" name="probability11" min="0" max="1.0" step="1" value="0.1"><br>
+
+<label for="probability11">16th note probaility</label>
+<input type="number" id="16thProb" name="probability11" min="0" max="1.0" step="1" value="0.1"><br>
+
+
 <h2>Solo's note parameters</h2>
 
 <p>The solo generates its note values in 3 note segments, rating them based off how random they are, then combining these probabilities with its previous segments. For example, a segment could be C-D-E, C-E-G, and lotsa things</p>
@@ -119,20 +129,26 @@
 <input type="number" id="dimProb" name="probability11" min="0" max="1.0" step="1" value="0.5"><br>
 
 <label for="probability11">Triad (C-E-G)</label>
-<input type="number" id="triadProb" name="probability11" min="0" max="1.0" step="1" value="1.0"><br>
+<input type="number" id="triadProb" name="probability11" min="0" max="1.0" step="1" value="0.5"><br>
 
 <label for="probability11">Reverse scale direction (B-C-B)</label>
 <input type="number" id="reverseProb" name="probability11" min="0" max="1.0" step="1" value="1.5"><br>
 
 <label for="probability11">Major resolve (D-B-C)</label>
-<input type="number" id="resolveProb" name="probability11" min="0" max="1.0" step="1" value="1.0"><br>
+<input type="number" id="resolveProb" name="probability11" min="0" max="1.0" step="1" value="0.5"><br>
 
-<label for="probability11">Fiths sequence (C-G-D)</label>
+<label for="probability11">Minor resolve (E-F-D)</label>
+<input type="number" id="minorResProb" name="probability11" min="0" max="1.0" step="1" value="0.4"><br>
+
+<label for="probability11">Mixolydian-like (G-A-F)</label>
+<input type="number" id="mixolydianResProb" name="probability11" min="0" max="1.0" step="1" value="0.4"><br>
+
+<label for="probability11">Fiths/fourths sequence (C-G-D)</label>
 <input type="number" id="fithsProb" name="probability11" min="0" max="1.0" step="1" value="0.4"><br>
 
 <label for="probability11">Randomness</label>
 
-<input type="number" id="randomness" name="probability11" min="0" max="1.0" step="1" value="0.01"><br>
+<input type="number" id="randomness" name="probability11" min="0" max="1.0" step="1" value="0.5"><br>
 
 <h2>Misc.</h2>
 
@@ -210,6 +226,7 @@
 <label for="probability11">Accompiement style:</label>
 <select name="probability11" id="accompiementStyle">
 	<option value="syncopatedStyle">syncopated</option>
+	<option value="idksyncopatedStyle">idk syncopated</option>
 	<option value="wholeNoteStyle">whole note</option>
 	<option value="rolledStyle">rolled</option>
 	<option value="folkStyle">offbeat</option>
@@ -346,8 +363,11 @@
 		}
 		
 		ctx.font = '16px san-serif';
-		for(let chord of piece.measures[i].chords)
-			ctx.fillText(chord.chord, i*barSpacing - beatToXOffset + xMargin, topMargin-16);
+		var spaced = 0
+		for(let chord of piece.measures[i].chords) {
+			ctx.fillText(chord.chord, i*barSpacing - beatToXOffset + xMargin + (barSpacing * spaced), topMargin-16);
+			spaced += 1.0/piece.measures[i].chords.length
+		}
 		
 		useSharps = piece.measures[i].chords[0].key >= 0
 		for(let instrumentSolo of piece.measures[i].soloNotes) {
@@ -453,6 +473,19 @@ function sleep(ms) {
 				}
 			}
         }
+		
+		function playChordIdkSyncopatedStyle(chord,bpm,measure) {
+			if(document.getElementById("playAccompiment").checked) {
+				// Play each note in the chord
+				var quarterNote = 60 / bpm;
+				var timeExtra = 0
+				chord.forEach(function (note) {
+					piano.play(note, audioContext.currentTime, { duration: (quarterNote*2)});
+					piano.play(note, audioContext.currentTime + quarterNote * 2, { duration: (quarterNote)});
+					piano.play(note, audioContext.currentTime + quarterNote * 3, { duration: (quarterNote)});
+				})
+			}
+		}
         
 		function playChordFolk(chord,bpm) {
 			if(document.getElementById("playAccompiment").checked) {
@@ -468,6 +501,45 @@ function sleep(ms) {
 				}
 			}
         }
+		
+		function playMultiChord(chords,bpm) {
+			if(document.getElementById("playAccompiment").checked) {
+				// Play each note in the chord
+				var quarterNote = 60 / bpm;
+				var timeExtra = 0;
+				var chordsTiming = [0];
+				if(chords.length == 2) {
+					chordsTiming = [0,2]
+				}
+				if(chords.length == 3) {
+					chordsTiming = [0,2,3]
+				}
+				if(chords.length == 4) {
+					chordsTiming = [0,1,2,3]
+				}
+				
+				for(var i = 0; i < chords.length; i++) {
+					timeExtra+=chordsTiming[i]
+					var noteLength = 4;
+					if(i!=chords.length-1) {
+						noteLength=chordsTiming[i+1]-chordsTiming[i]
+					} else {
+						noteLength=4-chordsTiming[i]
+					}
+					
+					var chordNotes =Tonal.Chord.get(chords[i].chord).notes;
+					var chordMidiNotes = []
+					
+					for(var j = 0; j < chordNotes.length; j++) {
+						chordMidiNotes.push(Tonal.Midi.toMidi(chordNotes[j]+"4"));
+					}
+					
+					chordMidiNotes.forEach(function (note) {
+						piano.play(note, audioContext.currentTime + quarterNote * timeExtra, { duration: (noteLength * quarterNote)});
+					});
+				}
+			}
+		}
 		
         function playBass(note, length) {
 			if(document.getElementById("playBass").checked) {
@@ -584,7 +656,9 @@ function sleep(ms) {
 		subdivideRhythm() {
 			var newRhythm = "";
 			var syncopationProbability = document.getElementById("syncopationProbability").value
-			var dottedProbability = document.getElementById("dottedProbability").value
+			var dottedProbability = document.getElementById("dottedProbability").value 
+			var tripletProb = document.getElementById("tripletProb").value
+			var sixteenthProb = document.getElementById("16thProb").value
 			for(var i = 0; i < this.rhythm.length; i++) {
 				var newSubdivided = ""
 				if(Math.random() < parseFloat(document.getElementById("subdivisionProbability").value)) {
@@ -596,8 +670,17 @@ function sleep(ms) {
 						case 'H':
 							newSubdivided = Tree.weightedPick([{value: "SED", prob: syncopationProbability}, {value: "AED", prob: syncopationProbability}, {value: "DE", prob: dottedProbability * 2}, {value: "QQ", prob: 1.0}])
 							break
+						case 'D':
+							newSubdivided = Tree.weightedPick([{value: "EQ", prob: 0.5}, {value: "QE", prob: 0.5}])
+							break
+						case 'F':
+							newSubdivided = Tree.weightedPick([{value: "DD", prob: 0.7}, {value: "EQEQ", prob: 0.3}])
+							break
 						case 'Q':
-							newSubdivided = Tree.weightedPick([{value: "EE", prob: 0.5}, {value: "Q", prob: 0.5}])
+							newSubdivided = Tree.weightedPick([{value: "TTT", prob: tripletProb}, {value: "EE", prob: 1.0}])
+							break
+						case 'E':
+							newSubdivided = Tree.weightedPick([{value: "VV", prob: sixteenthProb}, {value: "E", prob: 1.0}])
 							break
 						default:
 							newSubdivided = this.rhythm.slice(i, i+1);
@@ -657,6 +740,12 @@ function sleep(ms) {
 						case 'E':
 							arr.push(0.5);
 							break;
+						case 'T':
+							arr.push(0.33333333333);
+							break;
+						case 'V':
+							arr.push(0.25);
+							break;
 					}
 				}
 			}
@@ -664,6 +753,7 @@ function sleep(ms) {
 			return arr;
 		}
 		getThisOrder() {
+			/*
 			var multiplicity = 1;
 			var measureNumber = this.measures-1;
 			for(let isRight of this.directions) {
@@ -673,6 +763,17 @@ function sleep(ms) {
 				
 				}
 				multiplicity*=2
+			}
+			*/
+			var measureNumber = 0;
+			var multiplicity = Math.pow(2,this.maxDepth);
+			for(let isRight of this.directions) {
+				if(isRight) {
+					measureNumber+=multiplicity
+				} else {
+				
+				}
+				multiplicity/=2
 			}
 			return measureNumber;
 		}
@@ -690,8 +791,7 @@ function sleep(ms) {
 				this.rhythm = parent.rhythm;
 				this.order = this.getThisOrder()
 				
-				if(!this.isRight)
-					this.subdivideRhythm()
+				this.subdivideRhythm()
 				
 				if(this.currentDepth < this.maxDepth) {
 					this.branches = [new Tree({parent: this, isRight: false}), new Tree({parent: this, isRight: true})];
@@ -741,7 +841,7 @@ function sleep(ms) {
 			    distance += 12;
 
 			return distance;
-		    }
+		}
 		
 		getChordPoints(otherChord) {
 			let points = 0;
@@ -942,7 +1042,10 @@ function sleep(ms) {
 			var i = 0
 			while(rankings[i].likeness > 1.75) {
 				i++
+				if(i==rankings.length)
+				break;
 			}
+			
 			return rankings[Math.round(Math.random() * i)];
 		}
 		playMeasure() {
@@ -965,7 +1068,9 @@ function sleep(ms) {
 				if(document.getElementById("accompiementStyle").value == "syncopatedStyle") {
 					playChord(chordMidiNotes, this.bpm);
 				}
-				
+				if(document.getElementById("accompiementStyle").value == "idksyncopatedStyle") {
+					playChordIdkSyncopatedStyle(chordMidiNotes, this.bpm);
+				}
 				if(document.getElementById("accompiementStyle").value == "wholeNoteStyle") {
 					playChordLame(chordMidiNotes, this.bpm);
 				}
@@ -981,6 +1086,9 @@ function sleep(ms) {
 				if(document.getElementById("accompiementStyle").value == "alienStyle") {
 					playChordAlien(chordMidiNotes, this.bpm);
 				}
+			} else {
+				// TODO: add chord styles
+				playMultiChord(chords, this.bpm);
 			}
 			
 			for(var soloIndex = 0; soloIndex < this.measures[this.measureOn  % this.phraseLength].soloNotes.length; soloIndex++) {
@@ -1400,6 +1508,8 @@ function sleep(ms) {
 			var triadProb = parseFloat(document.getElementById("triadProb").value)
 			var reverseProb = parseFloat(document.getElementById("reverseProb").value)
 			var resolveProb = parseFloat(document.getElementById("resolveProb").value)
+			var minorResProb = parseFloat(document.getElementById("minorResProb").value)
+			var mixolydianResProb = parseFloat(document.getElementById("mixolydianResProb").value)
 			var fithsProb   = parseFloat(document.getElementById("fithsProb").value)
 			
 			
@@ -1455,6 +1565,17 @@ function sleep(ms) {
 				points += resolveProb; // D B C for example
 			}
 			
+			if ((firstInterval === "2m") &&
+				(secondInterval === "6M")) {
+				points += minorResProb; // E F D for example
+			}
+			
+			if ((firstInterval === "2M") &&
+				(secondInterval === "6m")) {
+				points += mixolydianResProb; // G A F for example
+			}
+			
+			
 			if ((firstInterval === "7m") &&
 				(secondInterval === "2M")) {
 				points += reverseProb; // D C D for example
@@ -1472,8 +1593,8 @@ function sleep(ms) {
 			}
 
 			// Check if the bass line is a fifth progression (C - G - D for example)
-			if (firstInterval === "5P" &&
-				secondInterval === "5P") {
+			if ((firstInterval === "5P" &&
+				secondInterval === "5P") || (backwardsFirstInterval === "5P" && backwardsSecondInterval === "5P")) {
 				points += fithsProb; // Fifths bass line
 			}
 			
@@ -1556,12 +1677,19 @@ function sleep(ms) {
 			}
 		    }
 		generateChords() {
-			this.measures.push(new Measure([new Chord("Dm7", 0, 3.75)]))
+			this.measures.push(new Measure([new Chord("Cmaj7", 0, 3.75)]))
 			for(var i = this.measures.length; i < this.phraseLength; i++) {
 				this.keyChange()
-				var nextChord = this.getNextChord(this.measures[i-1].chords)
+				console.log(this.measures[i-1].chords);
+				var prev = this.getNextChord(this.measures[i-1].chords)
+				var measureChords = [prev]
+				for(var j = 0; j < 0; j++) {
+					this.keyChange()
+					var nextChord = this.getNextChord(measureChords)
+					measureChords.push(nextChord);
+				}
 				//console.log(nextChord);
-				this.measures.push(new Measure([nextChord]))
+				this.measures.push(new Measure(measureChords))
 				//console.log(this.currentKey)
 			}
 			
